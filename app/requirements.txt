@@ -1,6 +1,0 @@
-pytorch
-torchvision
-numpy
-matplotlib
-pandas
-

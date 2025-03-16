@@ -1,57 +1,57 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.10.7)  26 FEB 2025 18:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2024.10.20)  15 MAR 2025 23:26
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**dokumentace.tex
-(./dokumentace.tex
+**c:/Users/vecer/OneDrive/Dokumenty/Dokumenty_VUT/4.2_FIT/KNN/Projekt/knn-math/dokumentace.tex
+(c:/Users/vecer/OneDrive/Dokumenty/Dokumenty_VUT/4.2_FIT/KNN/Projekt/knn-math/dokumentace.tex
 LaTeX2e <2023-11-01> patch level 1
-L3 programming layer <2024-02-20>
-(/usr/local/texlive/2024/texmf-dist/tex/latex/base/article.cls
+L3 programming layer <2024-01-04>
+(C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
 Document Class: article 2023/05/17 v1.4n Standard LaTeX document class
-(/usr/local/texlive/2024/texmf-dist/tex/latex/base/size12.clo
+(C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/base\size12.clo
 File: size12.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
 )
-\c@part=\count188
-\c@section=\count189
-\c@subsection=\count190
-\c@subsubsection=\count191
-\c@paragraph=\count192
-\c@subparagraph=\count193
-\c@figure=\count194
-\c@table=\count195
+\c@part=\count187
+\c@section=\count188
+\c@subsection=\count189
+\c@subsubsection=\count190
+\c@paragraph=\count191
+\c@subparagraph=\count192
+\c@figure=\count193
+\c@table=\count194
 \abovecaptionskip=\skip48
 \belowcaptionskip=\skip49
 \bibindent=\dimen140
-)
-(/usr/local/texlive/2024/texmf-dist/tex/generic/babel/babel.sty
-Package: babel 2024/02/07 v24.2 The Babel package
-\babel@savecnt=\count196
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/babel\babel.sty
+Package: babel 2024/01/07 v24.1 The Babel package
+\babel@savecnt=\count195
 \U@D=\dimen141
-\l@unhyphenated=\language89
-
-(/usr/local/texlive/2024/texmf-dist/tex/generic/babel/txtbabel.def)
+\l@unhyphenated=\language79
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/babel\txtbabel.def)
 \bbl@readstream=\read2
-\bbl@dirlevel=\count197
+\bbl@dirlevel=\count196
 
-(/usr/local/texlive/2024/texmf-dist/tex/generic/babel-czech/czech.ldf
+*************************************
+* Local config file bblopts.cfg used
+*
+(C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/arabi\bblopts.cfg
+File: bblopts.cfg 2005/09/08 v0.1 add Arabic and Farsi to "declared" options of babel
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/babel-czech\czech.ldf
 Language: czech 2008/07/06 v3.1a Czech support from the babel system
 Package babel Info: Making " an active character on input line 172.
-\cs@wordlen=\count198
+\cs@wordlen=\count197
 Package babel Info: Making - an active character on input line 226.
-))
-(/usr/local/texlive/2024/texmf-dist/tex/generic/babel/locale/cs/babel-czech.tex
+)) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/babel/locale/cs\babel-czech.tex
 Package babel Info: Importing font and identification data for czech
 (babel)             from babel-cs.ini. Reported on input line 11.
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/base/fontenc.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
 Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/base/inputenc.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
 Package: inputenc 2021/02/14 v1.3d Input encoding file
 \inpenc@prehook=\toks17
 \inpenc@posthook=\toks18
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/lm/lmodern.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/lm\lmodern.sty
 Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
@@ -85,204 +85,161 @@ LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 (Font)                  OT1/cmr/bx/it --> OT1/lmr/bx/it on input line 37.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 (Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 38.
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/graphicx.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
 Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/keyval.sty
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks19
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/graphics.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
 Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/trig.sty
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
 Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 107.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-def/pdftex.def
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
 File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen142
 \Gin@req@width=\dimen143
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/listings/listings.sty
-\lst@mode=\count199
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
+\lst@mode=\count198
 \lst@gtempboxa=\box51
 \lst@token=\toks20
-\lst@length=\count266
+\lst@length=\count199
 \lst@currlwidth=\dimen144
-\lst@column=\count267
-\lst@pos=\count268
+\lst@column=\count266
+\lst@pos=\count267
 \lst@lostspace=\dimen145
 \lst@width=\dimen146
-\lst@newlines=\count269
-\lst@lineno=\count270
+\lst@newlines=\count268
+\lst@lineno=\count269
 \lst@maxwidth=\dimen147
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/listings/lstpatch.sty
-File: lstpatch.sty 2024/02/21 1.10 (Carsten Heinz)
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/listings/lstmisc.sty
-File: lstmisc.sty 2024/02/21 1.10 (Carsten Heinz)
-\c@lstnumber=\count271
-\lst@skipnumbers=\count272
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
+File: lstmisc.sty 2023/02/27 1.9 (Carsten Heinz)
+\c@lstnumber=\count270
+\lst@skipnumbers=\count271
 \lst@framebox=\box52
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/listings/listings.cfg
-File: listings.cfg 2024/02/21 1.10 listings configuration
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
+File: listings.cfg 2023/02/27 1.9 listings configuration
 ))
-Package: listings 2024/02/21 1.10 (Carsten Heinz)
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/url/url.sty
+Package: listings 2023/02/27 1.9 (Carsten Heinz)
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
 \Urlmuskip=\muskip16
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hyperref/hyperref.sty
-Package: hyperref 2024-01-20 v7.01h Hypertext links for LaTeX
-
-(/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/iftex.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+Package: hyperref 2023-11-26 v7.01g Hypertext links for LaTeX
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
 Package: iftex 2022/02/03 v1.0f TeX engine tests
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
-Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
-)
-(/usr/local/texlive/2024/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
-Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
-)
-(/usr/local/texlive/2024/texmf-dist/tex/generic/pdfescape/pdfescape.sty
-Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
-
-(/usr/local/texlive/2024/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
-Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
-)
-(/usr/local/texlive/2024/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
-Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
-)
-
-(/usr/local/texlive/2024/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.sty
 Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
-)
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
-))
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hycolor/hycolor.sty
+)) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty
 Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/auxhook/auxhook.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/letltxmacro\letltxmacro.sty
+Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/auxhook\auxhook.sty
 Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hyperref/nameref.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
 Package: nameref 2023-11-26 v2.56 Cross-referencing by name of section
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/refcount/refcount.sty
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty
 Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
-)
-(/usr/local/texlive/2024/texmf-dist/tex/generic/gettitlestring/gettitlestring.s
-ty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
- (/usr/local/texlive/2024/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
-\c@section@level=\count273
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+\c@section@level=\count272
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty
 Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count274
+\etb@tempcnta=\count273
 )
 \@linkdim=\dimen148
-\Hy@linkcounter=\count275
-\Hy@pagecounter=\count276
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hyperref/pd1enc.def
-File: pd1enc.def 2024-01-20 v7.01h Hyperref: PDFDocEncoding definition (HO)
+\Hy@linkcounter=\count274
+\Hy@pagecounter=\count275
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
+File: pd1enc.def 2023-11-26 v7.01g Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
-)
-(/usr/local/texlive/2024/texmf-dist/tex/generic/intcalc/intcalc.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
-\Hy@SavedSpaceFactor=\count277
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hyperref/puenc.def
-File: puenc.def 2024-01-20 v7.01h Hyperref: PDF Unicode definition (HO)
+\Hy@SavedSpaceFactor=\count276
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
+File: puenc.def 2023-11-26 v7.01g Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
 ... no UTF-8 mapping file for font encoding PU
 )
-Package hyperref Info: Hyper figures OFF on input line 4179.
-Package hyperref Info: Link nesting OFF on input line 4184.
-Package hyperref Info: Hyper index ON on input line 4187.
-Package hyperref Info: Plain pages OFF on input line 4194.
-Package hyperref Info: Backreferencing OFF on input line 4199.
+Package hyperref Info: Hyper figures OFF on input line 4181.
+Package hyperref Info: Link nesting OFF on input line 4186.
+Package hyperref Info: Hyper index ON on input line 4189.
+Package hyperref Info: Plain pages OFF on input line 4196.
+Package hyperref Info: Backreferencing OFF on input line 4201.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
-Package hyperref Info: Bookmarks ON on input line 4446.
-\c@Hy@tempcnt=\count278
-LaTeX Info: Redefining \url on input line 4784.
+Package hyperref Info: Bookmarks ON on input line 4448.
+\c@Hy@tempcnt=\count277
+LaTeX Info: Redefining \url on input line 4786.
 \XeTeXLinkMargin=\dimen149
-
-(/usr/local/texlive/2024/texmf-dist/tex/generic/bitset/bitset.sty
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
-
-(/usr/local/texlive/2024/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
-Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
-)
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
 ))
-\Fld@menulength=\count279
+\Fld@menulength=\count278
 \Field@Width=\dimen150
 \Fld@charsize=\dimen151
-Package hyperref Info: Hyper figures OFF on input line 6063.
-Package hyperref Info: Link nesting OFF on input line 6068.
-Package hyperref Info: Hyper index ON on input line 6071.
-Package hyperref Info: backreferencing OFF on input line 6078.
-Package hyperref Info: Link coloring OFF on input line 6083.
-Package hyperref Info: Link coloring with OCG OFF on input line 6088.
-Package hyperref Info: PDF/A mode OFF on input line 6093.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/base/atbegshi-ltx.sty
+Package hyperref Info: Hyper figures OFF on input line 6065.
+Package hyperref Info: Link nesting OFF on input line 6070.
+Package hyperref Info: Hyper index ON on input line 6073.
+Package hyperref Info: backreferencing OFF on input line 6080.
+Package hyperref Info: Link coloring OFF on input line 6085.
+Package hyperref Info: Link coloring with OCG OFF on input line 6090.
+Package hyperref Info: PDF/A mode OFF on input line 6095.
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/base\atbegshi-ltx.sty
 Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
 package with kernel methods
 )
-\Hy@abspage=\count280
-\c@Item=\count281
-\c@Hfootnote=\count282
+\Hy@abspage=\count279
+\c@Item=\count280
+\c@Hfootnote=\count281
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/hyperref/hpdftex.def
-File: hpdftex.def 2024-01-20 v7.01h Hyperref driver for pdfTeX
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/base/atveryend-ltx.sty
-Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend pac
-kage
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+File: hpdftex.def 2023-11-26 v7.01g Hyperref driver for pdfTeX
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/base\atveryend-ltx.sty
+Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend package
 with kernel methods
 )
-\Fld@listcount=\count283
-\c@bookmark@seq@number=\count284
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+\Fld@listcount=\count282
+\c@bookmark@seq@number=\count283
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfilecheck.sty
 Package: rerunfilecheck 2022-07-10 v1.10 Rerun checks for auxiliary files (HO)
-
-(/usr/local/texlive/2024/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquecounter.sty
 Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 )
-Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
-85.
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 285.
 )
 \Hy@SectionHShift=\skip50
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/xcolor/xcolor.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
 Package: xcolor 2023/11/15 v3.01 LaTeX color extensions (UK)
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics-cfg/color.cfg
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package xcolor Info: Driver file: pdftex.def on input line 274.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx)
 Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1350.
 Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1354.
 Package xcolor Info: Model `RGB' extended on input line 1366.
@@ -292,16 +249,14 @@ Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1370.
 Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1371.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1372.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1373.
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/geometry/geometry.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
 Package: geometry 2020/01/02 v5.9 Page Geometry
-
-(/usr/local/texlive/2024/texmf-dist/tex/generic/iftex/ifvtex.sty
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 )
-\Gm@cnth=\count285
-\Gm@cntv=\count286
-\c@Gm@tempcnt=\count287
+\Gm@cnth=\count284
+\Gm@cntv=\count285
+\c@Gm@tempcnt=\count286
 \Gm@bindingoffset=\dimen152
 \Gm@wd@mp=\dimen153
 \Gm@odd@mp=\dimen154
@@ -311,12 +266,9 @@ Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 \Gm@layouthoffset=\dimen158
 \Gm@layoutvoffset=\dimen159
 \Gm@dimlist=\toks21
-)
-(/usr/local/texlive/2024/texmf-dist/tex/generic/dirtree/dirtree.sty
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg)) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/dirtree\dirtree.sty
 Package: dirtree 2012/12/11 v0.32 package wrapper for dirtree
-
-(/usr/local/texlive/2024/texmf-dist/tex/generic/dirtree/dirtree.tex
-`dirtree' v0.32, 2012/12/11 (jcc)
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/generic/dirtree\dirtree.tex `dirtree' v0.32, 2012/12/11 (jcc)
 \DT@offset=\dimen160
 \DT@width=\dimen161
 \DT@sep=\dimen162
@@ -324,31 +276,26 @@ Package: dirtree 2012/12/11 v0.32 package wrapper for dirtree
 \DT@rulewidth=\dimen164
 \DT@dotwidth=\dimen165
 \DTbaselineskip=\dimen166
-\DT@counti=\count288
-\DT@countii=\count289
-\DT@countiii=\count290
-\DT@countiv=\count291
+\DT@counti=\count287
+\DT@countii=\count288
+\DT@countiii=\count289
+\DT@countiv=\count290
 \DT@indent=\dimen167
 \DT@parskip=\dimen168
 \DT@baselineskip=\dimen169
 )
 File: dirtree.tex 2012/12/11 v0.32 `dirtree' (jcc)
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
+File: lstlang1.sty 2023/02/27 1.9 listings language file
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/listings/lstlang1.sty
-File: lstlang1.sty 2024/02/21 1.10 listings language file
-)
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 47
-.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/lm/t1lmr.fd
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 47.
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmr.fd
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
-File: l3backend-pdftex.def 2024-02-20 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count292
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
+File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count291
 \l__pdf_internal_box=\box53
-)
-(./dokumentace.aux)
+) (dokumentace.aux)
 \openout1 = `dokumentace.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 47.
@@ -369,33 +316,28 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 47.
 LaTeX Font Info:    ... okay on input line 47.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 47.
 LaTeX Font Info:    ... okay on input line 47.
-
-(/usr/local/texlive/2024/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count293
+\scratchcounter=\count292
 \scratchdimen=\dimen170
 \scratchbox=\box54
-\nofMPsegments=\count294
-\nofMParguments=\count295
+\nofMPsegments=\count293
+\nofMParguments=\count294
 \everyMPshowfont=\toks22
-\MPscratchCnt=\count296
+\MPscratchCnt=\count295
 \MPscratchDim=\dimen171
-\MPnumerator=\count297
-\makeMPintoPDFobject=\count298
+\MPnumerator=\count296
+\makeMPintoPDFobject=\count297
 \everyMPtoPDFconversion=\toks23
-) (/usr/local/texlive/2024/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
-Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
-85.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
-File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
-e
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-\c@lstlisting=\count299
+\c@lstlisting=\count298
 Package hyperref Info: Link coloring OFF on input line 47.
-
-(./dokumentace.out) (./dokumentace.out)
+ (dokumentace.out) (dokumentace.out)
 \@outlinefile=\write3
 \openout3 = `dokumentace.out'.
 
@@ -434,27 +376,20 @@ Package hyperref Info: Link coloring OFF on input line 47.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 5
-0.
-(/usr/local/texlive/2024/texmf-dist/tex/latex/lm/ot1lmr.fd
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 50.
+(C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 5
-0.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/lm/omllmm.fd
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 50.
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/lm\omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-50.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/lm/omslmsy.fd
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 50.
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/lm\omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-50.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/lm/omxlmex.fd
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 50.
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/lm\omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
@@ -463,7 +398,7 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <10> on input line 50.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <7> on input line 50.
- (./dokumentace.toc
+ (dokumentace.toc
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <12> on input line 5.
 LaTeX Font Info:    External font `lmex10' loaded for size
@@ -476,54 +411,44 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 
  [1
 
-{/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/loc
-al/texlive/2024/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 7
-0.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/lm/ts1lmr.fd
+{C:/Users/vecer/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/vecer/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}]
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 70.
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-) [2{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}] [3{/usr
-/local/texlive/2024/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-49.
-
-(/usr/local/texlive/2024/texmf-dist/tex/latex/lm/t1lmtt.fd
+) [2{C:/Users/vecer/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}] [3{C:/Users/vecer/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}]
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 149.
+ (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-(/usr/local/texlive/2024/texmf-dist/tex/latex/listings/lstlang1.sty
-File: lstlang1.sty 2024/02/21 1.10 listings language file
-)
-(/usr/local/texlive/2024/texmf-dist/tex/latex/listings/lstlang1.sty
-File: lstlang1.sty 2024/02/21 1.10 listings language file
-) [4]
-[5] (./dokumentace.aux)
+<img/errors.png, id=123, 699.61375pt x 496.35437pt>
+File: img/errors.png Graphic file (type png)
+<use img/errors.png>
+Package pdftex.def Info: img/errors.png  used on input line 165.
+(pdftex.def)             Requested size: 364.19667pt x 258.38599pt.
+ [4 <./img/errors.png>] (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
+File: lstlang1.sty 2023/02/27 1.9 listings language file
+) (C:\Users\vecer\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
+File: lstlang1.sty 2023/02/27 1.9 listings language file
+) [5] (dokumentace.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
-L3 programming layer <2024-02-20>
+L3 programming layer <2024-01-04>
  ***********
 Package rerunfilecheck Info: File `dokumentace.out' has not changed.
-(rerunfilecheck)             Checksum: 3CEFBF55F51DB67C9EF3E21341FA5A25;2514.
+(rerunfilecheck)             Checksum: A8632654FC5C1154C85F66831F8959E0;2599.
  ) 
 Here is how much of TeX's memory you used:
- 12746 strings out of 474116
- 196822 string characters out of 5743682
- 1968187 words of memory out of 5000000
- 34892 multiletter control sequences out of 15000+600000
+ 12811 strings out of 474485
+ 200867 string characters out of 5743733
+ 1965542 words of memory out of 5000000
+ 34872 multiletter control sequences out of 15000+600000
  608982 words of font info for 69 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,6n,79p,363b,1263s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2024/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/lo
-cal/texlive/2024/texmf-dist/fonts/type1/public/lm/lmmi12.pfb></usr/local/texliv
-e/2024/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2024/texm
-f-dist/fonts/type1/public/lm/lmr17.pfb></usr/local/texlive/2024/texmf-dist/font
-s/type1/public/lm/lmr6.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/publ
-ic/lm/lmtt10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/lm/lmtt
-12.pfb>
-Output written on dokumentace.pdf (5 pages, 166390 bytes).
+ 75i,7n,79p,496b,1264s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<C:/Users/vecer/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/vecer/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/vecer/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb><C:/Users/vecer/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb><C:/Users/vecer/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr6.pfb><C:/Users/vecer/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Users/vecer/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt12.pfb>
+Output written on dokumentace.pdf (5 pages, 449889 bytes).
 PDF statistics:
- 188 PDF objects out of 1000 (max. 8388607)
- 164 compressed objects within 2 object streams
- 41 named destinations out of 1000 (max. 500000)
- 145 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 196 PDF objects out of 1000 (max. 8388607)
+ 43 named destinations out of 1000 (max. 500000)
+ 158 words of extra memory for PDF output out of 10000 (max. 10000000)
 

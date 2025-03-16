@@ -28,7 +28,7 @@ def parse_arguments():
 def train_model():
     """Trénování KNN modelu"""
     print("Načítání trénovacích dat...")
-    X_train, y_train = data_loader.load_training_data(os.path.join(config.DATASET_PATH, "train_labels.txt"), config.DATASET_PATH)
+    X_train, y_train = data_loader.load_training_data(os.path.join(config.DATASET_PATH, "train_labels.txt"), os.path.join(config.DATASET_PATH, "train_images"))
 
     print("Předzpracování trénovacích dat...")
     X_train_processed = segmentation.preprocess_images(X_train)

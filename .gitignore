@@ -1,1 +1,14 @@
-/dataset
+**/dataset/
+**/dataset_test/
+
+# LaTex build files
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+run_docker.bat
+commands.txt

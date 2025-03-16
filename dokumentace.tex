@@ -53,7 +53,7 @@
 
 \section{Úvod}
 
-Tento dokument popisuje strukturu a implementaci projektu KNN-Math, který se zaměřuje na rozpoznávání matematických vzorců pomocí algoritmu k-nejbližších sousedů (KNN). Systém je navržen pro rozpoznávání jak tištěných, tak ručně psaných matematických výrazů a jejich převod do formátu LaTeX.
+Tento dokument popisuje strukturu a implementaci projektu KNN-Math, který se zaměřuje na rozpoznávání matematických vzorců pomocí algoritmu k-nejbližších sousedů (KNN). Systém je navržen pro rozpoznávání jak tištěných, tak off-line ručně psaných matematických výrazů a jejich převod do formátu LaTeX.
 
 \section{Struktura projektu}
 
@@ -156,6 +156,18 @@ Proces trénování zahrnuje:
     \item Trénování KNN klasifikátoru
     \item Uložení natrénovaného modelu pro pozdější použití
 \end{enumerate}
+
+\section{Evaluace}  % Testovani
+Během rozpoznání může dojít ke dvěma typům errorů: error v rozpoznání symbolu a error v rozpoznání struktury~\ref{img:errors}.
+% ===== errors img =====
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/errors.png}
+    \caption{Příklady možných chyb při rozpoznávání}
+    \label{img:errors}
+\end{figure}
+ 
+
 
 \section{Použití aplikace}
 

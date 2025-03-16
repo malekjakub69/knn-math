@@ -6,7 +6,8 @@ import os
 import pickle
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
-from ..config import KNN_N_NEIGHBORS, KNN_WEIGHTS
+# from ..config import KNN_N_NEIGHBORS, KNN_WEIGHTS
+from config import KNN_N_NEIGHBORS, KNN_WEIGHTS
 
 
 def train(X_train, y_train):

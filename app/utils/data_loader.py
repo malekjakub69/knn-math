@@ -48,6 +48,10 @@ def load_training_data(labels_path, images_dir):
                         X_train.append(image)
                         y_train.append(label)
 
+                        # Degubbing statement
+                        if len(X_train) % 100 == 0:
+                            print(f"{len(X_train)} images loaded...")
+
     return X_train, y_train
 
 

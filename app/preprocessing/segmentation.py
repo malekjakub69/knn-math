@@ -4,7 +4,8 @@ Modul pro segmentaci a předzpracování matematických symbolů
 
 import cv2
 import numpy as np
-from ..config import IMAGE_SIZE
+# from ..config import IMAGE_SIZE
+from config import IMAGE_SIZE
 
 
 def preprocess_image(image):

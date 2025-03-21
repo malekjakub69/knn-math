@@ -19,7 +19,7 @@ def main():
     parser.add_argument("--learning_rate", type=float, default=3e-4, help="Learning rate")
     parser.add_argument("--checkpoint", type=str, default=None, help="Cesta k checkpointu modelu")
     parser.add_argument("--eval_only", action="store_true", help="Pouze vyhodnocení modelu bez tréninku")
-    parser.add_argument("--device", type=str, default="auto", choices=["cpu", "mps", "auto"], help="Zařízení pro trénink - cpu, mps (pro Apple Silicon) nebo auto (automatická detekce)")
+    parser.add_argument("--device", type=str, default="auto", choices=["cpu", "mps", "cuda", "auto"], help="Zařízení pro trénink - cpu, mps (pro Apple Silicon), cuda (nVidia GPU) nebo auto (automatická detekce)")
 
     # Parametry modelu
     parser.add_argument("--encoder_dim", type=int, default=256, help="Dimenze encoderu")
@@ -42,18 +42,24 @@ def main():
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
 
-    # Nastavení zařízení (CPU/MPS)
+    # Nastavení zařízení (CPU/MPS/CUDA)
     if args.device == "auto":
         if torch.backends.mps.is_available():
             device = torch.device("mps")
             print("Používám akceleraci Apple Silicon (MPS)")
+        elif torch.cuda.is_available():
+            device = torch.device("cuda")
+            print("Používám CUDA (GPU)")
         else:
             device = torch.device("cpu")
-            print("Používám CPU (MPS není dostupné)")
+            print("Používám CPU (MPS ani CUDA nejsou dostupné)")
     else:
         device = torch.device(args.device)
         if args.device == "mps" and not torch.backends.mps.is_available():
             print("VAROVÁNÍ: Požadujete MPS, ale není dostupné. Přepínám na CPU.")
+            device = torch.device("cpu")
+        elif args.device == "cuda" and not torch.cuda.is_available():
+            print("VAROVÁNÍ: Požadujete CUDA, ale není dostupné. Přepínám na CPU.")
             device = torch.device("cpu")
 
     print(f"Používané zařízení: {device}")

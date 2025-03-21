@@ -7,7 +7,7 @@ import pickle
 from .model import LatexOCRModel
 
 
-def predict_single_image(model, image_path, idx2word, max_length=150, start_token=1, end_token=2, device="cpu"):
+def predict_single_image(model, image_path, idx2word, max_length=150, start_token=1, end_token=2, device="cpu", beam_size=3):
     """
     Predikce LaTeX kódu pro jeden obrázek.
 
@@ -19,6 +19,7 @@ def predict_single_image(model, image_path, idx2word, max_length=150, start_toke
         start_token: Index start tokenu
         end_token: Index end tokenu
         device: Zařízení pro výpočet (mps/cpu)
+        beam_size: Velikost beam search (počet kandidátů)
 
     Returns:
         Predikovaný LaTeX kód
@@ -32,15 +33,51 @@ def predict_single_image(model, image_path, idx2word, max_length=150, start_toke
     # Predikce
     model.eval()
     with torch.no_grad():
-        predicted_indices = model.predict(image, max_length, start_token, end_token)
+        predicted_indices = model.predict(image, max_length, start_token, end_token, beam_size=beam_size)
 
     # Převod indexů na LaTeX tokeny
     latex_tokens = [idx2word[idx] for idx in predicted_indices if idx not in [0, 1, 2]]  # Vynechání speciálních tokenů
 
-    # Sestavení LaTeX výrazu
-    latex_expression = "".join(latex_tokens)
+    # Post-processing pro odstranění chyb
+    latex_expression = post_process_latex("".join(latex_tokens))
 
     return latex_expression
+
+
+def post_process_latex(latex_str):
+    """
+    Post-processing LaTeX výrazu pro zvýšení kvality.
+    Opraví běžné chyby a zajistí konzistenci závorek a dalších symbolů.
+    """
+    # Oprava nekonzistentních závorek
+    open_brackets = latex_str.count("{")
+    close_brackets = latex_str.count("}")
+
+    if open_brackets > close_brackets:
+        latex_str += "}" * (open_brackets - close_brackets)
+    elif close_brackets > open_brackets:
+        # Odstraníme přebývající }
+        excess = close_brackets - open_brackets
+        for _ in range(excess):
+            last_idx = latex_str.rfind("}")
+            if last_idx != -1:
+                latex_str = latex_str[:last_idx] + latex_str[last_idx + 1 :]
+
+    # Oprava nekonzistentních \left \right
+    left_cmds = latex_str.count("\\left")
+    right_cmds = latex_str.count("\\right")
+
+    if left_cmds > right_cmds:
+        latex_str += "\\right." * (left_cmds - right_cmds)
+
+    # Odstranění opakujících se mezer
+    while "  " in latex_str:
+        latex_str = latex_str.replace("  ", " ")
+
+    # Odstranění mezer na začátku a konci
+    latex_str = latex_str.strip()
+
+    return latex_str
 
 
 def main():
@@ -50,6 +87,7 @@ def main():
     parser.add_argument("--image", type=str, required=True, help="Cesta k obrázku")
     parser.add_argument("--output", type=str, default=None, help="Cesta k výstupnímu souboru")
     parser.add_argument("--device", type=str, default="auto", choices=["cpu", "mps", "auto"], help="Zařízení pro predikci - cpu, mps (pro Apple Silicon) nebo auto (automatická detekce)")
+    parser.add_argument("--beam_size", type=int, default=3, help="Velikost beam search (počet kandidátů)")
 
     args = parser.parse_args()
 
@@ -86,7 +124,7 @@ def main():
 
     # Predikce
     print(f"Predikce pro obrázek: {args.image}")
-    latex_expression = predict_single_image(model, args.image, idx2word, device=device)
+    latex_expression = predict_single_image(model, args.image, idx2word, device=device, beam_size=args.beam_size)
 
     print(f"Predikovaný LaTeX: {latex_expression}")
 

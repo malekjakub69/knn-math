@@ -2,8 +2,9 @@ import os
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
-from PIL import Image
+from PIL import Image, ImageFilter, ImageEnhance
 import numpy as np
+import random
 
 
 class LatexDataset(Dataset):
@@ -11,7 +12,7 @@ class LatexDataset(Dataset):
     Dataset pro obrázky matematických výrazů a jejich LaTeX kód.
     """
 
-    def __init__(self, data_dir, split="train", max_length=150, transform=None):
+    def __init__(self, data_dir, split="train", max_length=150, transform=None, augment=True):
         """
         Inicializace datasetu.
 
@@ -20,13 +21,37 @@ class LatexDataset(Dataset):
             split: 'train', 'val' nebo 'test'
             max_length: Maximální délka LaTeX sekvence
             transform: Transformace aplikované na obrázky
+            augment: Zda použít augmentaci (pouze pro trénovací data)
         """
         self.data_dir = data_dir
         self.split = split
         self.max_length = max_length
+        self.augment = augment and split == "train"  # Augmentaci používáme jen na trénovací data
 
-        # Základní transformace pokud není specifikováno jinak
-        self.transform = transform if transform else transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+        # Transformace pro různé fáze
+        if transform:
+            self.transform = transform
+        else:
+            # Standartní normalizace
+            norm_mean = [0.485, 0.456, 0.406]
+            norm_std = [0.229, 0.224, 0.225]
+
+            # Základní transformace - použité pro všechny
+            base_transform = [transforms.Resize((224, 224)), transforms.ToTensor(), transforms.Normalize(mean=norm_mean, std=norm_std)]
+
+            # Augmentace pouze pro trénink
+            if self.augment:
+                self.transform = transforms.Compose(
+                    [
+                        transforms.RandomApply([transforms.ColorJitter(brightness=0.2, contrast=0.2)], p=0.3),
+                        transforms.RandomApply([transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 1.0))], p=0.2),
+                        transforms.RandomRotation(degrees=2),  # Mírná rotace
+                        transforms.RandomAffine(degrees=0, translate=(0.05, 0.05)),  # Mírný posun
+                        *base_transform,
+                    ]
+                )
+            else:
+                self.transform = transforms.Compose(base_transform)
 
         # Načtení seznamu obrázků a odpovídajících LaTeX kódů
         self.images_path = os.path.join(data_dir, f"{split}_images")
@@ -117,6 +142,12 @@ class LatexDataset(Dataset):
         image_path = os.path.join(self.images_path, self.image_files[idx])
         image = Image.open(image_path).convert("RGB")
 
+        # Pre-processing - vylepšený kontrast pro lepší rozpoznání matematických symbolů
+        if self.split == "train" and random.random() < 0.3:
+            # Pro některé trénovací obrázky zvýšíme kontrast
+            enhancer = ImageEnhance.Contrast(image)
+            image = enhancer.enhance(1.2)
+
         if self.transform:
             image = self.transform(image)
 
@@ -161,15 +192,15 @@ def collate_fn(batch):
     return images, padded_captions, torch.LongTensor(lengths)
 
 
-def create_dataloaders(data_dir, batch_size=32, num_workers=0):
+def create_dataloaders(data_dir, batch_size=32, num_workers=0, augment=True):
     """
     Vytvoření dataloaderu pro train, val a test data.
     """
     # Vytvoření datasetů
     print(f"Načítání datasetu z: {data_dir}")
-    train_dataset = LatexDataset(data_dir, split="train")
-    val_dataset = LatexDataset(data_dir, split="val")
-    test_dataset = LatexDataset(data_dir, split="test")
+    train_dataset = LatexDataset(data_dir, split="train", augment=augment)
+    val_dataset = LatexDataset(data_dir, split="val", augment=False)
+    test_dataset = LatexDataset(data_dir, split="test", augment=False)
 
     print(f"Trénovací dataset: {len(train_dataset)} vzorků")
     print(f"Validační dataset: {len(val_dataset)} vzorků")

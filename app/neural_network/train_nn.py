@@ -9,14 +9,27 @@ from .train import train_model, evaluate_model
 
 def main():
     parser = argparse.ArgumentParser(description="Trénování modelu pro převod matematických výrazů do LaTeX")
+    # Data a výstupy
     parser.add_argument("--data_dir", type=str, required=True, help="Adresář s datasetem")
     parser.add_argument("--output_dir", type=str, default="outputs", help="Adresář pro výstupy")
+
+    # Parametry tréninku
     parser.add_argument("--batch_size", type=int, default=32, help="Velikost batch")
-    parser.add_argument("--epochs", type=int, default=30, help="Počet epoch")
+    parser.add_argument("--epochs", type=int, default=100, help="Počet epoch")
     parser.add_argument("--learning_rate", type=float, default=3e-4, help="Learning rate")
     parser.add_argument("--checkpoint", type=str, default=None, help="Cesta k checkpointu modelu")
     parser.add_argument("--eval_only", action="store_true", help="Pouze vyhodnocení modelu bez tréninku")
-    parser.add_argument("--device", type=str, default="auto", choices=["cpu", "mps", "auto", "cuda"], help="Zařízení pro trénink - cpu, mps (pro Apple Silicon), cuda (nVidia GPU) nebo auto (automatická detekce)")
+    parser.add_argument("--device", type=str, default="auto", choices=["cpu", "mps", "auto"], help="Zařízení pro trénink - cpu, mps (pro Apple Silicon) nebo auto (automatická detekce)")
+
+    # Parametry modelu
+    parser.add_argument("--encoder_dim", type=int, default=256, help="Dimenze encoderu")
+    parser.add_argument("--decoder_dim", type=int, default=512, help="Dimenze decoderu")
+    parser.add_argument("--embedding_dim", type=int, default=256, help="Dimenze embeddingu")
+    parser.add_argument("--attention_dim", type=int, default=256, help="Dimenze attention")
+    parser.add_argument("--dropout", type=float, default=0.5, help="Dropout")
+
+    # Augmentace
+    parser.add_argument("--no_augment", action="store_true", help="Vypnout datovou augmentaci")
 
     args = parser.parse_args()
 
@@ -29,14 +42,11 @@ def main():
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
 
-    # Nastavení zařízení (CPU/MPS/CUDA)
+    # Nastavení zařízení (CPU/MPS)
     if args.device == "auto":
         if torch.backends.mps.is_available():
             device = torch.device("mps")
             print("Používám akceleraci Apple Silicon (MPS)")
-        elif torch.cuda.is_available():
-            device = torch.device("cuda")
-            print("Používám CUDA (GPU)")
         else:
             device = torch.device("cpu")
             print("Používám CPU (MPS není dostupné)")
@@ -45,14 +55,12 @@ def main():
         if args.device == "mps" and not torch.backends.mps.is_available():
             print("VAROVÁNÍ: Požadujete MPS, ale není dostupné. Přepínám na CPU.")
             device = torch.device("cpu")
-        elif args.device == "cuda" and not torch.cuda.is_available():
-            print("VAROVÁNÍ: Požadujete CUDA, ale není dostupné. Přepínám na CPU.")
-            device = torch.device("cpu")
 
     print(f"Používané zařízení: {device}")
 
     # Vytvoření dataloaderu
-    train_loader, val_loader, test_loader, vocab_size = create_dataloaders(args.data_dir, batch_size=args.batch_size)
+    augment = not args.no_augment
+    train_loader, val_loader, test_loader, vocab_size = create_dataloaders(args.data_dir, batch_size=args.batch_size, augment=augment)
 
     # Uložení slovníku pro pozdější použití při predikci
     train_dataset = LatexDataset(args.data_dir, split="train")
@@ -61,15 +69,19 @@ def main():
         pickle.dump(train_dataset.idx2word, f)
     print(f"Slovník uložen do: {vocab_file}")
 
+    # Parametry modelu
+    model_params = {"encoder_dim": args.encoder_dim, "decoder_dim": args.decoder_dim, "embedding_dim": args.embedding_dim, "attention_dim": args.attention_dim, "vocab_size": vocab_size, "dropout": args.dropout}
+
     # Vytvoření nebo načtení modelu
     if args.checkpoint:
         print(f"Načítání modelu z checkpointu: {args.checkpoint}")
         checkpoint = torch.load(args.checkpoint, map_location=device)
-        model = LatexOCRModel(vocab_size=vocab_size)
+        model = LatexOCRModel(**model_params)
         model.load_state_dict(checkpoint["model_state_dict"])
     else:
         print("Vytváření nového modelu")
-        model = LatexOCRModel(vocab_size=vocab_size)
+        print(f"Parametry modelu: {model_params}")
+        model = LatexOCRModel(**model_params)
 
     # Přesun modelu na zvolené zařízení
     model = model.to(device)

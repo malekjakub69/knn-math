@@ -19,9 +19,13 @@ class LatexOCRModel(nn.Module):
 
         # Decoder - LSTM pro generování LaTeX sekvence
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.embedding_dropout = nn.Dropout(dropout)
         self.decoder = nn.LSTM(embedding_dim + encoder_dim, decoder_dim, batch_first=True)
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(decoder_dim, vocab_size)
+
+        # Batch normalizace pro lepší trénování
+        self.bn = nn.BatchNorm1d(decoder_dim)
 
         # Inicializace vah
         self._init_weights()
@@ -77,6 +81,7 @@ class LatexOCRModel(nn.Module):
 
         # Decoder s attention
         embeddings = self.embedding(captions)  # [batch_size, max_seq_length, embedding_dim]
+        embeddings = self.embedding_dropout(embeddings)  # Aplikace dropout na embeddings
 
         # Inicializace LSTM hidden a cell stavu
         h = torch.zeros(1, batch_size, self.decoder.hidden_size).to(images.device)
@@ -96,15 +101,22 @@ class LatexOCRModel(nn.Module):
             # LSTM forward pass
             lstm_out, (h, c) = self.decoder(lstm_input, (h, c))
 
-            # Predikce distribuce pravděpodobnosti
-            predictions = self.fc(self.dropout(lstm_out.squeeze(1)))
+            # Batch normalizace pro stabilnější trénink
+            lstm_out_flat = lstm_out.squeeze(1)
+            if lstm_out_flat.size(0) > 1:  # Batch norm potřebuje alespoň 2 vzorky
+                lstm_out_norm = self.bn(lstm_out_flat)
+            else:
+                lstm_out_norm = lstm_out_flat
+
+            # Dropout a predikce
+            predictions = self.fc(self.dropout(lstm_out_norm))
             outputs[:, t, :] = predictions
 
         return outputs
 
-    def predict(self, image, max_length=150, start_token=1, end_token=2):
+    def predict(self, image, max_length=150, start_token=1, end_token=2, beam_size=3):
         """
-        Generování LaTeX sekvence pro obrázek.
+        Generování LaTeX sekvence pro obrázek s využitím beam search pro zlepšení kvality.
         """
         with torch.no_grad():
             # Enkódování obrázku
@@ -120,39 +132,100 @@ class LatexOCRModel(nn.Module):
             # První token je start token
             curr_token = torch.LongTensor([start_token]).to(image.device)
 
-            # Postupné generování sekvence
-            generated_sequence = []
+            # Beam search
+            if beam_size > 1:
+                sequences = [([], 0.0, h, c)]  # (sequence, score, hidden, cell)
 
-            for _ in range(max_length):
-                # Embedding aktuálního tokenu
-                embedding = self.embedding(curr_token).unsqueeze(1)  # [1, 1, embedding_dim]
+                # Iterace pro každý krok generování
+                for _ in range(max_length):
+                    all_candidates = []
 
-                # Attention
-                context, _ = self.attention(features, h.squeeze(0))
+                    # Expandovat každou sekvenci
+                    for seq, score, h_prev, c_prev in sequences:
+                        if seq and seq[-1] == end_token:
+                            # Pokud sekvence končí, přidáme ji zpět
+                            all_candidates.append((seq, score, h_prev, c_prev))
+                            continue
 
-                # LSTM input
-                lstm_input = torch.cat([embedding.squeeze(1), context], dim=1).unsqueeze(1)
+                        # Poslední token nebo start token
+                        last_token = torch.LongTensor([seq[-1] if seq else start_token]).to(image.device)
 
-                # LSTM forward pass
-                lstm_out, (h, c) = self.decoder(lstm_input, (h, c))
+                        # Embedding aktuálního tokenu
+                        embedding = self.embedding(last_token)
 
-                # Predikce distribuce pravděpodobnosti
-                predictions = self.fc(lstm_out.squeeze(1))
+                        # Attention
+                        context, _ = self.attention(features, h_prev.squeeze(0))
 
-                # Výběr tokenu s nejvyšší pravděpodobností
-                _, predicted_token = predictions.max(1)
+                        # LSTM input
+                        lstm_input = torch.cat([embedding, context], dim=1).unsqueeze(1)
 
-                # Přidání do vygenerované sekvence
-                generated_sequence.append(predicted_token.item())
+                        # LSTM forward pass
+                        lstm_out, (h_next, c_next) = self.decoder(lstm_input, (h_prev, c_prev))
 
-                # Kontrola ukončení sekvence
-                if predicted_token.item() == end_token:
-                    break
+                        # Predikce distribuce pravděpodobnosti
+                        if lstm_out.size(0) > 1:
+                            lstm_out_norm = self.bn(lstm_out.squeeze(1))
+                        else:
+                            lstm_out_norm = lstm_out.squeeze(1)
 
-                # Aktualizace tokenu pro další krok
-                curr_token = predicted_token
+                        predictions = self.fc(self.dropout(lstm_out_norm))
 
-            return generated_sequence
+                        # Top-k tokeny
+                        probs = torch.nn.functional.log_softmax(predictions, dim=1)
+                        topk_probs, topk_tokens = probs.topk(beam_size)
+
+                        # Přidání nových kandidátů
+                        for i in range(beam_size):
+                            new_seq = seq + [topk_tokens[0, i].item()]
+                            new_score = score + topk_probs[0, i].item()
+                            all_candidates.append((new_seq, new_score, h_next, c_next))
+
+                    # Seřazení a výběr top beam_size kandidátů
+                    all_candidates.sort(key=lambda x: x[1], reverse=True)
+                    sequences = all_candidates[:beam_size]
+
+                    # Kontrola, zda všechny sekvence končí
+                    if all(seq[-1] == end_token for seq, _, _, _ in sequences):
+                        break
+
+                # Vrácení nejlepší sekvence
+                best_seq = sequences[0][0]
+                return best_seq
+
+            # Standardní generování bez beam search
+            else:
+                generated_sequence = []
+
+                for _ in range(max_length):
+                    # Embedding aktuálního tokenu
+                    embedding = self.embedding(curr_token)
+
+                    # Attention
+                    context, _ = self.attention(features, h.squeeze(0))
+
+                    # LSTM input
+                    lstm_input = torch.cat([embedding, context], dim=1).unsqueeze(1)
+
+                    # LSTM forward pass
+                    lstm_out, (h, c) = self.decoder(lstm_input, (h, c))
+
+                    # Predikce distribuce pravděpodobnosti
+                    predictions = self.fc(lstm_out.squeeze(1))
+
+                    # Výběr tokenu s nejvyšší pravděpodobností
+                    _, predicted_token = predictions.max(1)
+
+                    # Přidání do vygenerované sekvence
+                    generated_sequence.append(predicted_token.item())
+
+                    # Kontrola ukončení sekvence
+                    if predicted_token.item() == end_token:
+                        break
+
+                    # Aktualizace tokenu pro další krok
+                    curr_token = predicted_token
+
+                return generated_sequence
 
 
 class Attention(nn.Module):
@@ -166,6 +239,8 @@ class Attention(nn.Module):
         self.encoder_att = nn.Linear(encoder_dim, attention_dim)
         self.decoder_att = nn.Linear(decoder_dim, attention_dim)
         self.full_att = nn.Linear(attention_dim, 1)
+        self.relu = nn.ReLU()
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, encoder_features, decoder_hidden):
         """
@@ -184,11 +259,11 @@ class Attention(nn.Module):
         att2 = self.decoder_att(decoder_hidden)  # [batch_size, attention_dim]
 
         # Součet s rozšířeným decoder state
-        att = torch.tanh(att1 + att2.unsqueeze(1))  # [batch_size, num_pixels, attention_dim]
+        att = self.relu(att1 + att2.unsqueeze(1))  # [batch_size, num_pixels, attention_dim]
 
         # Výpočet attention weights
         att = self.full_att(att).squeeze(2)  # [batch_size, num_pixels]
-        alpha = torch.softmax(att, dim=1)  # [batch_size, num_pixels]
+        alpha = self.softmax(att)  # [batch_size, num_pixels]
 
         # Výpočet kontextového vektoru
         context = (encoder_features * alpha.unsqueeze(2)).sum(dim=1)  # [batch_size, encoder_dim]

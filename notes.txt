@@ -1,0 +1,9 @@
+> Normalizovat obrazky na vysku -> 64 px cca
+> Sirka se muze lisit, model to pak opaduje
+
+Transformer 
+> 2 moznosti rozsekani obrazu vertikalne
+   - jeden bin vs. vice binu
+> ViT (=Vision Transformer)
+  vs.
+> VGG

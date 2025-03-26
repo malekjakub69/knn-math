@@ -5,40 +5,51 @@ class LatexOCRModel(nn.Module):
     """
     End-to-end model pro převod obrázků matematických výrazů na LaTeX kód.
     Používá encoder-decoder architekturu; nyní se encoder zakládá na transformeru.
+    Navíc obsahuje VGG-blok pro lepší extrakci vizuálních příznaků.
     """
 
     def __init__(self, encoder_dim=256, decoder_dim=512, vocab_size=1000, embedding_dim=256,
                  attention_dim=256, dropout=0.5, num_transformer_layers=6, nhead=8):
         super(LatexOCRModel, self).__init__()
 
-        # Transformer Encoder - rozdělí obrázek na patche a zpracuje je transformerem.
-        self.patch_size = 16  # předpokládáme obrázek o velikosti 224x224
-        self.num_patches = (224 // self.patch_size) ** 2  # 14x14 = 196
+        # VGG-inspired block for feature extraction
+        self.vgg = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(64, 64, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2)  # Reduces image from 224x224 to 112x112
+        )
+
+        # Update patch parameters after VGG: new image resolution is 112x112
+        self.patch_size = 16
+        self.num_patches = (112 // self.patch_size) ** 2  # 7x7 = 49
         self.encoder_dim = encoder_dim
 
-        # Patch embedding pomocí conv vrstvy
-        self.patch_embed = nn.Conv2d(3, encoder_dim, kernel_size=self.patch_size, stride=self.patch_size)
-        # Learnable poziční embeding
+        # Patch embedding using a convolutional layer.
+        # Note: input channels now match the VGG output (64).
+        self.patch_embed = nn.Conv2d(64, encoder_dim, kernel_size=self.patch_size, stride=self.patch_size)
+        # Learnable positional embedding
         self.pos_emb = nn.Parameter(torch.zeros(1, self.num_patches, encoder_dim))
 
         # Transformer encoder
         encoder_layer = nn.TransformerEncoderLayer(d_model=encoder_dim, nhead=nhead, dropout=dropout)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_transformer_layers)
 
-        # Attention mechanismus (ponecháme stejný jako předtím)
+        # Attention mechanism
         self.attention = Attention(encoder_dim, decoder_dim, attention_dim)
 
-        # Decoder - LSTM pro generování LaTeX sekvence
+        # Decoder - LSTM for generating LaTeX sequences
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.embedding_dropout = nn.Dropout(dropout)
         self.decoder = nn.LSTM(embedding_dim + encoder_dim, decoder_dim, batch_first=True)
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(decoder_dim, vocab_size)
 
-        # Batch normalizace pro lepší trénování
+        # Batch normalization for better training
         self.bn = nn.BatchNorm1d(decoder_dim)
 
-        # Inicializace vah
+        # Weight initialization
         self._init_weights()
 
     def _init_weights(self):
@@ -64,22 +75,24 @@ class LatexOCRModel(nn.Module):
         """
         batch_size = images.size(0)
 
-        # Transformer Encoder - získání vizuálních příznaků
-        # Patch embedding
-        features = self.patch_embed(images)  # [batch_size, encoder_dim, 14, 14]
-        features = features.flatten(2).transpose(1, 2)  # [batch_size, num_patches, encoder_dim]
-        features = features + self.pos_emb  # Přidání pozičních embeddingů
+        # VGG block for initial feature extraction
+        images = self.vgg(images)  # [batch_size, 64, 112, 112]
 
-        # Transformer encoder vyžaduje tvar [num_patches, batch_size, encoder_dim]
+        # Patch embedding
+        features = self.patch_embed(images)  # [batch_size, encoder_dim, 7, 7]
+        features = features.flatten(2).transpose(1, 2)  # [batch_size, num_patches, encoder_dim]
+        features = features + self.pos_emb  # Add positional embeddings
+
+        # Transformer encoder expects shape [num_patches, batch_size, encoder_dim]
         features = features.transpose(0, 1)  # [num_patches, batch_size, encoder_dim]
         features = self.transformer_encoder(features)  # [num_patches, batch_size, encoder_dim]
         features = features.transpose(0, 1)  # [batch_size, num_patches, encoder_dim]
 
-        # Decoder s attention
+        # Decoder with attention
         embeddings = self.embedding(captions)  # [batch_size, max_seq_length, embedding_dim]
         embeddings = self.embedding_dropout(embeddings)
 
-        # Inicializace LSTM hidden a cell stavu
+        # Initialize LSTM hidden and cell state
         h = torch.zeros(1, batch_size, self.decoder.hidden_size).to(images.device)
         c = torch.zeros(1, batch_size, self.decoder.hidden_size).to(images.device)
 
@@ -87,10 +100,10 @@ class LatexOCRModel(nn.Module):
         outputs = torch.zeros(batch_size, max_length, self.fc.out_features).to(images.device)
 
         for t in range(max_length):
-            # Attention mechanismus
+            # Apply attention
             context, _ = self.attention(features, h.squeeze(0))
 
-            # LSTM vstup v čase t
+            # LSTM input for time t
             lstm_input = torch.cat([embeddings[:, t, :], context], dim=1).unsqueeze(1)
             lstm_out, (h, c) = self.decoder(lstm_input, (h, c))
 
@@ -110,8 +123,9 @@ class LatexOCRModel(nn.Module):
         Generování LaTeX sekvence pro obrázek s využitím beam search.
         """
         with torch.no_grad():
-            # Patch embedding & Transformer encoder
-            features = self.patch_embed(image)  # [1, encoder_dim, 14, 14]
+            # VGG block and Patch embedding & Transformer encoder
+            image = self.vgg(image)  # [1, 64, 112, 112]
+            features = self.patch_embed(image)  # [1, encoder_dim, 7, 7]
             features = features.flatten(2).transpose(1, 2)  # [1, num_patches, encoder_dim]
             features = features + self.pos_emb
             features = features.transpose(0, 1)

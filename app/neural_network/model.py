@@ -12,7 +12,7 @@ class LatexOCRModel(nn.Module):
 
     def __init__(self, encoder_dim=256, decoder_dim=512, vocab_size=1000, embedding_dim=256,
                  attention_dim=256, dropout=0.5, num_transformer_layers=6, nhead=8,
-                 height=224, max_width=1024):
+                 height=80, max_width=1024):  # Changed default height to 80
         super(LatexOCRModel, self).__init__()
         
         self.height = height
@@ -30,12 +30,12 @@ class LatexOCRModel(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2)  # Reduces height from 224 to 112
+            nn.MaxPool2d(kernel_size=2, stride=2)  # Reduces height from 80 to 40
         )
 
         # Update patch parameters: height is fixed, width is variable
-        self.patch_size = 16
-        self.patch_height = height // 2 // self.patch_size  # 112 // 16 = 7
+        self.patch_size = 8  # Changed from 16 to 8
+        self.patch_height = height // 2 // self.patch_size  # 40 // 8 = 5
         self.encoder_dim = encoder_dim
 
         # Patch embedding using a convolutional layer.
@@ -78,12 +78,13 @@ class LatexOCRModel(nn.Module):
     def preprocess_image(self, image):
         """
         Preprocesses the input image to have fixed height while preserving aspect ratio.
+        Also pads width to be divisible by patch_size.
         
         Args:
             image: Input image of shape [batch_size, channels, height, width]
             
         Returns:
-            Preprocessed image of shape [batch_size, channels, self.height, new_width]
+            Preprocessed image of shape [batch_size, channels, self.height, padded_width]
         """
         batch_size, channels, height, width = image.shape
         
@@ -93,18 +94,26 @@ class LatexOCRModel(nn.Module):
             new_width = int(width * scale_factor)
             image = F.interpolate(image, size=(self.height, new_width), mode='bilinear', align_corners=False)
         
-        # Pad width if needed (for very wide images)
+        # Get current dimensions after resize
         _, _, _, current_width = image.shape
-        if current_width > self.max_width:
+        
+        # Calculate padding to make width divisible by patch_size
+        remainder = current_width % self.patch_size
+        if remainder != 0:
+            padding_width = self.patch_size - remainder
+            padding = (0, padding_width, 0, 0)  # pad_left, pad_right, pad_top, pad_bottom
+            image = F.pad(image, padding, "constant", 0)
+        
+        # Check if width exceeds max_width
+        _, _, _, padded_width = image.shape
+        if padded_width > self.max_width:
             # If image is too wide, resize it to max width
             image = F.interpolate(image, size=(self.height, self.max_width), mode='bilinear', align_corners=False)
         
         # Normalize pixel values
         if channels == 3:  # Only normalize RGB images
-            # Reshape for normalization
-            image_flat = image.view(-1, channels, self.height, image.shape[3])
-            image = self.normalize(image_flat)
-        
+            image = self.normalize(image)
+
         return image
 
     def forward(self, images, captions, caption_lengths):

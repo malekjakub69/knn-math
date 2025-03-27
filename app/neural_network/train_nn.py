@@ -32,7 +32,7 @@ def main():
     parser.add_argument("--data_dir", type=str, required=True, help="Adresář s datasetem")
     parser.add_argument("--output_dir", type=str, default="outputs", help="Adresář pro výstupy")
     # Parametry tréninku
-    parser.add_argument("--batch_size", type=int, default=48, help="Velikost batch")
+    parser.add_argument("--batch_size", type=int, default=64, help="Velikost batch")
     parser.add_argument("--epochs", type=int, default=100, help="Počet epoch")
     parser.add_argument("--learning_rate", type=float, default=3e-4, help="Learning rate")
     parser.add_argument("--checkpoint", type=str, default=None, help="Cesta k checkpointu modelu")

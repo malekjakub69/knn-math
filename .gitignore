@@ -11,3 +11,7 @@ run_docker.bat
 *.out
 *.synctex.gz
 *.toc
+/outputs
+**/*/__pycache__
+.vscode/
+.DS_Store

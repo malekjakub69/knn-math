@@ -2,17 +2,27 @@ import os
 import argparse
 import torch
 import pickle
+import random
+import numpy as np
 from .model import LatexOCRModel
 from .dataset import create_dataloaders, LatexDataset
 from .train import train_model, evaluate_model
 
+# Set random seeds for reproducibility
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 def main():
+    set_seed(42)  # You can parameterize the seed if needed
+
     parser = argparse.ArgumentParser(description="Trénování modelu pro převod matematických výrazů do LaTeX")
     # Data a výstupy
     parser.add_argument("--data_dir", type=str, required=True, help="Adresář s datasetem")
     parser.add_argument("--output_dir", type=str, default="outputs", help="Adresář pro výstupy")
-
     # Parametry tréninku
     parser.add_argument("--batch_size", type=int, default=32, help="Velikost batch")
     parser.add_argument("--epochs", type=int, default=100, help="Počet epoch")
@@ -20,14 +30,12 @@ def main():
     parser.add_argument("--checkpoint", type=str, default=None, help="Cesta k checkpointu modelu")
     parser.add_argument("--eval_only", action="store_true", help="Pouze vyhodnocení modelu bez tréninku")
     parser.add_argument("--device", type=str, default="auto", choices=["cpu", "mps", "cuda", "auto"], help="Zařízení pro trénink - cpu, mps (pro Apple Silicon), cuda (nVidia GPU) nebo auto (automatická detekce)")
-
     # Parametry modelu
     parser.add_argument("--encoder_dim", type=int, default=256, help="Dimenze encoderu")
     parser.add_argument("--decoder_dim", type=int, default=512, help="Dimenze decoderu")
     parser.add_argument("--embedding_dim", type=int, default=256, help="Dimenze embeddingu")
     parser.add_argument("--attention_dim", type=int, default=256, help="Dimenze attention")
     parser.add_argument("--dropout", type=float, default=0.5, help="Dropout")
-
     # Augmentace
     parser.add_argument("--no_augment", action="store_true", help="Vypnout datovou augmentaci")
 
@@ -49,7 +57,7 @@ def main():
             print("Používám akceleraci Apple Silicon (MPS)")
         elif torch.cuda.is_available():
             device = torch.device("cuda")
-            print("Používám CUDA (GPU)")
+            print(f"Používám CUDA (GPU: {torch.cuda.get_device_name(0)})")
         else:
             device = torch.device("cpu")
             print("Používám CPU (MPS ani CUDA nejsou dostupné)")
@@ -101,12 +109,10 @@ def main():
         # Trénování modelu
         print("Spouštění tréninku...")
         model = train_model(model=model, train_loader=train_loader, val_loader=val_loader, learning_rate=args.learning_rate, epochs=args.epochs, device=device, checkpoint_path=checkpoint_dir)
-
         # Vyhodnocení natrénovaného modelu
         print("Vyhodnocování modelu...")
         test_loss, accuracy = evaluate_model(model=model, test_loader=test_loader, device=device)
         print(f"Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.4f}")
-
 
 if __name__ == "__main__":
     main()

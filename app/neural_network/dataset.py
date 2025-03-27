@@ -45,8 +45,8 @@ class LatexDataset(Dataset):
                     [
                         transforms.RandomApply([transforms.ColorJitter(brightness=0.2, contrast=0.2)], p=0.3),
                         transforms.RandomApply([transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 1.0))], p=0.2),
-                        transforms.RandomRotation(degrees=2),  # Mírná rotace
-                        transforms.RandomAffine(degrees=0, translate=(0.05, 0.05)),  # Mírný posun
+                        transforms.RandomRotation(degrees=5),  # Mírná rotace
+                        transforms.RandomAffine(degrees=1, translate=(0.08, 0.08)),  # Mírný posun
                         *base_transform,
                     ]
                 )

@@ -11,7 +11,7 @@ class LatexOCRModel(nn.Module):
     """
 
     def __init__(self, encoder_dim=320, decoder_dim=512, vocab_size=1000, embedding_dim=256,
-                 attention_dim=256, dropout=0.3, num_transformer_layers=8, nhead=8,
+                 attention_dim=256, dropout=0.5, num_transformer_layers=4, nhead=8,
                  height=80, max_width=1024):  # Changed default height to 80
         super(LatexOCRModel, self).__init__()
         

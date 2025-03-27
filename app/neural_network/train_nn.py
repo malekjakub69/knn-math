@@ -32,18 +32,19 @@ def main():
     parser.add_argument("--data_dir", type=str, required=True, help="Adresář s datasetem")
     parser.add_argument("--output_dir", type=str, default="outputs", help="Adresář pro výstupy")
     # Parametry tréninku
-    parser.add_argument("--batch_size", type=int, default=32, help="Velikost batch")
+    parser.add_argument("--batch_size", type=int, default=48, help="Velikost batch")
     parser.add_argument("--epochs", type=int, default=100, help="Počet epoch")
     parser.add_argument("--learning_rate", type=float, default=3e-4, help="Learning rate")
     parser.add_argument("--checkpoint", type=str, default=None, help="Cesta k checkpointu modelu")
     parser.add_argument("--eval_only", action="store_true", help="Pouze vyhodnocení modelu bez tréninku")
     parser.add_argument("--device", type=str, default="auto", choices=["cpu", "mps", "cuda", "auto"], help="Zařízení pro trénink - cpu, mps (pro Apple Silicon), cuda (nVidia GPU) nebo auto (automatická detekce)")
     # Parametry modelu
-    parser.add_argument("--encoder_dim", type=int, default=256, help="Dimenze encoderu")
+    parser.add_argument("--encoder_dim", type=int, default=320, help="Dimenze encoderu")
+    parser.add_argument("--num_transformer_layers", type=int, default=8, help="Počet transformer vrstev")
     parser.add_argument("--decoder_dim", type=int, default=512, help="Dimenze decoderu")
     parser.add_argument("--embedding_dim", type=int, default=256, help="Dimenze embeddingu")
     parser.add_argument("--attention_dim", type=int, default=256, help="Dimenze attention")
-    parser.add_argument("--dropout", type=float, default=0.5, help="Dropout")
+    parser.add_argument("--dropout", type=float, default=0.3, help="Dropout")
     # Augmentace
     parser.add_argument("--no_augment", action="store_true", help="Vypnout datovou augmentaci")
 

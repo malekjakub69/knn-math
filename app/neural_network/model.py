@@ -10,8 +10,8 @@ class LatexOCRModel(nn.Module):
     Navíc obsahuje VGG-blok pro lepší extrakci vizuálních příznaků.
     """
 
-    def __init__(self, encoder_dim=256, decoder_dim=512, vocab_size=1000, embedding_dim=256,
-                 attention_dim=256, dropout=0.5, num_transformer_layers=6, nhead=8,
+    def __init__(self, encoder_dim=320, decoder_dim=512, vocab_size=1000, embedding_dim=256,
+                 attention_dim=256, dropout=0.3, num_transformer_layers=8, nhead=8,
                  height=80, max_width=1024):  # Changed default height to 80
         super(LatexOCRModel, self).__init__()
         
@@ -60,8 +60,8 @@ class LatexOCRModel(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(decoder_dim, vocab_size)
 
-        # Batch normalization for better training
-        self.bn = nn.BatchNorm1d(decoder_dim)
+        # Layer normalization for LSTM output
+        self.norm = nn.LayerNorm(decoder_dim)
 
         # Weight initialization
         self._init_weights()
@@ -171,7 +171,7 @@ class LatexOCRModel(nn.Module):
 
             lstm_out_flat = lstm_out.squeeze(1)
             if lstm_out_flat.size(0) > 1:
-                lstm_out_norm = self.bn(lstm_out_flat)
+                lstm_out_norm = self.norm(lstm_out_flat)
             else:
                 lstm_out_norm = lstm_out_flat
 
@@ -220,7 +220,7 @@ class LatexOCRModel(nn.Module):
                         lstm_input = torch.cat([embedding, context], dim=1).unsqueeze(1)
                         lstm_out, (h_next, c_next) = self.decoder(lstm_input, (h_prev, c_prev))
                         if lstm_out.size(0) > 1:
-                            lstm_out_norm = self.bn(lstm_out.squeeze(1))
+                            lstm_out_norm = self.norm(lstm_out.squeeze(1))
                         else:
                             lstm_out_norm = lstm_out.squeeze(1)
                         predictions = self.fc(self.dropout(lstm_out_norm))

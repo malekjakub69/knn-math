@@ -25,14 +25,14 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
         optimizer,
         max_lr=learning_rate,
         total_steps=epochs * len(train_loader),
-        pct_start=0.1,  # First 10% for warmup
+        pct_start=0.15, # First 15% for warmup
         div_factor=25,  # Initial lr = max_lr/25
         final_div_factor=10000,  # Final lr = max_lr/10000
         anneal_strategy='cos'
     )
 
     # Early stopping
-    patience = 7
+    patience = 10
     early_stopping_counter = 0
 
     # Nejlepší validační loss
@@ -40,6 +40,7 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
     best_accuracy = 0.0
 
     global_step = 0  # track steps for batch-wise scheduling
+    accumulation_steps = 2  # Effective batch size = 32*2 = 64
 
     # Training loop
     for epoch in range(epochs):
@@ -70,8 +71,11 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
             loss = criterion(outputs, targets)
 
             # Backward pass
-            optimizer.zero_grad()
+            loss = loss / accumulation_steps
             loss.backward()
+            if (i + 1) % accumulation_steps == 0:
+                optimizer.step()
+                optimizer.zero_grad()
 
             # Gradient clipping
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=2.0)

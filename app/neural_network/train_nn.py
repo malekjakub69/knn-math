@@ -1,12 +1,19 @@
+"""
+Trénovací skript pro neuronovou síť.
+"""
+
 import os
 import argparse
 import torch
 import pickle
 import random
 import numpy as np
-from .model import LatexOCRModel
-from .dataset import create_dataloaders, LatexDataset
-from .train import train_model, evaluate_model
+from tqdm import tqdm
+
+from model import LatexOCRModel
+from dataset import create_dataloaders, LatexDataset
+from train import train_model, evaluate_model
+
 
 # Set random seeds for reproducibility
 def set_seed(seed=42):
@@ -15,6 +22,7 @@ def set_seed(seed=42):
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
 
 def main():
     set_seed(42)  # You can parameterize the seed if needed
@@ -113,6 +121,7 @@ def main():
         print("Vyhodnocování modelu...")
         test_loss, accuracy = evaluate_model(model=model, test_loader=test_loader, device=device)
         print(f"Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.4f}")
+
 
 if __name__ == "__main__":
     main()

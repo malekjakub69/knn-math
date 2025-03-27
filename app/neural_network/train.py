@@ -20,13 +20,16 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
     criterion = nn.CrossEntropyLoss(ignore_index=0)  # ignore padding tokens
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-5, betas=(0.9, 0.98))
 
-    # Learning rate scheduler - lineární warm-up a poté decay (batch-wise)
-    def lr_lambda(current_step, warmup_steps=50, decay_rate=0.95):
-        if current_step < warmup_steps:
-            return float(current_step) / float(max(1, warmup_steps))
-        return decay_rate ** (current_step - warmup_steps)
-
-    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+    # Initialize the scheduler differently
+    scheduler = optim.lr_scheduler.OneCycleLR(
+        optimizer,
+        max_lr=learning_rate,
+        total_steps=epochs * len(train_loader),
+        pct_start=0.1,  # First 10% for warmup
+        div_factor=25,  # Initial lr = max_lr/25
+        final_div_factor=10000,  # Final lr = max_lr/10000
+        anneal_strategy='cos'
+    )
 
     # Early stopping
     patience = 7

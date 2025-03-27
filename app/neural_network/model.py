@@ -243,8 +243,10 @@ class LatexOCRModel(nn.Module):
                     embedding = self.embedding(curr_token)
                     context, _ = self.attention(features, h.squeeze(0))
                     lstm_input = torch.cat([embedding, context], dim=1).unsqueeze(1)
-                    lstm_out, (h, c) = self.decoder(lstm_input, (h, c))
-                    predictions = self.fc(lstm_out.squeeze(1))
+                    lstm_out, (h, c) = self.decoder(lstm_input, (h, c))  # Add this line
+                    lstm_out_flat = lstm_out.squeeze(1)
+                    lstm_out_norm = self.norm(lstm_out_flat)
+                    predictions = self.fc(self.dropout(lstm_out_norm))
                     _, predicted_token = predictions.max(1)
                     generated_sequence.append(predicted_token.item())
                     if predicted_token.item() == end_token:

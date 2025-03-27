@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+from torchvision import transforms
 
 class LatexOCRModel(nn.Module):
     """
@@ -9,8 +11,18 @@ class LatexOCRModel(nn.Module):
     """
 
     def __init__(self, encoder_dim=256, decoder_dim=512, vocab_size=1000, embedding_dim=256,
-                 attention_dim=256, dropout=0.5, num_transformer_layers=6, nhead=8):
+                 attention_dim=256, dropout=0.5, num_transformer_layers=6, nhead=8,
+                 height=224, max_width=1024):
         super(LatexOCRModel, self).__init__()
+        
+        self.height = height
+        self.max_width = max_width
+        
+        # Image normalization
+        self.normalize = transforms.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        )
 
         # VGG-inspired block for feature extraction
         self.vgg = nn.Sequential(
@@ -18,20 +30,22 @@ class LatexOCRModel(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2)  # Reduces image from 224x224 to 112x112
+            nn.MaxPool2d(kernel_size=2, stride=2)  # Reduces height from 224 to 112
         )
 
-        # Update patch parameters after VGG: new image resolution is 112x112
+        # Update patch parameters: height is fixed, width is variable
         self.patch_size = 16
-        self.num_patches = (112 // self.patch_size) ** 2  # 7x7 = 49
+        self.patch_height = height // 2 // self.patch_size  # 112 // 16 = 7
         self.encoder_dim = encoder_dim
 
         # Patch embedding using a convolutional layer.
-        # Note: input channels now match the VGG output (64).
         self.patch_embed = nn.Conv2d(64, encoder_dim, kernel_size=self.patch_size, stride=self.patch_size)
-        # Learnable positional embedding
-        self.pos_emb = nn.Parameter(torch.zeros(1, self.num_patches, encoder_dim))
-
+        
+        # Adaptive positional embeddings
+        # We'll generate this dynamically in the forward pass
+        max_patches = (self.height // 2 // self.patch_size) * (self.max_width // 2 // self.patch_size)
+        self.pos_embed_weight = nn.Parameter(torch.zeros(1, max_patches, encoder_dim))
+        
         # Transformer encoder
         encoder_layer = nn.TransformerEncoderLayer(d_model=encoder_dim, nhead=nhead, dropout=dropout)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_transformer_layers)
@@ -61,12 +75,44 @@ class LatexOCRModel(nn.Module):
                 elif "bias" in name:
                     nn.init.constant_(param, 0.0)
 
+    def preprocess_image(self, image):
+        """
+        Preprocesses the input image to have fixed height while preserving aspect ratio.
+        
+        Args:
+            image: Input image of shape [batch_size, channels, height, width]
+            
+        Returns:
+            Preprocessed image of shape [batch_size, channels, self.height, new_width]
+        """
+        batch_size, channels, height, width = image.shape
+        
+        # Resize to fixed height while preserving aspect ratio
+        if height != self.height:
+            scale_factor = self.height / height
+            new_width = int(width * scale_factor)
+            image = F.interpolate(image, size=(self.height, new_width), mode='bilinear', align_corners=False)
+        
+        # Pad width if needed (for very wide images)
+        _, _, _, current_width = image.shape
+        if current_width > self.max_width:
+            # If image is too wide, resize it to max width
+            image = F.interpolate(image, size=(self.height, self.max_width), mode='bilinear', align_corners=False)
+        
+        # Normalize pixel values
+        if channels == 3:  # Only normalize RGB images
+            # Reshape for normalization
+            image_flat = image.view(-1, channels, self.height, image.shape[3])
+            image = self.normalize(image_flat)
+        
+        return image
+
     def forward(self, images, captions, caption_lengths):
         """
         Forward pass.
 
         Args:
-            images: Obrázky matematických výrazů [batch_size, 3, H, W] (očekáváme H=W=224)
+            images: Obrázky matematických výrazů [batch_size, 3, H, W] (variabilní rozměry)
             captions: Tokenizované LaTeX výrazy [batch_size, max_seq_length]
             caption_lengths: Délky skutečných caption [batch_size]
 
@@ -74,14 +120,21 @@ class LatexOCRModel(nn.Module):
             outputs: Predikce pro každý token [batch_size, max_seq_length, vocab_size]
         """
         batch_size = images.size(0)
+        
+        # Preprocess images to normalized size
+        images = self.preprocess_image(images)
 
         # VGG block for initial feature extraction
-        images = self.vgg(images)  # [batch_size, 64, 112, 112]
+        images = self.vgg(images)  # [batch_size, 64, H/2, W/2]
 
         # Patch embedding
-        features = self.patch_embed(images)  # [batch_size, encoder_dim, 7, 7]
+        features = self.patch_embed(images)  # [batch_size, encoder_dim, H/(2*patch_size), W/(2*patch_size)]
         features = features.flatten(2).transpose(1, 2)  # [batch_size, num_patches, encoder_dim]
-        features = features + self.pos_emb  # Add positional embeddings
+        
+        # Create positional embedding for the actual number of patches
+        num_patches = features.shape[1]
+        pos_emb = self.pos_embed_weight[:, :num_patches, :]
+        features = features + pos_emb  # Add positional embeddings
 
         # Transformer encoder expects shape [num_patches, batch_size, encoder_dim]
         features = features.transpose(0, 1)  # [num_patches, batch_size, encoder_dim]
@@ -123,11 +176,19 @@ class LatexOCRModel(nn.Module):
         Generování LaTeX sekvence pro obrázek s využitím beam search.
         """
         with torch.no_grad():
+            # Preprocess image
+            image = self.preprocess_image(image)
+            
             # VGG block and Patch embedding & Transformer encoder
-            image = self.vgg(image)  # [1, 64, 112, 112]
-            features = self.patch_embed(image)  # [1, encoder_dim, 7, 7]
+            image = self.vgg(image)  # [1, 64, H/2, W/2]
+            features = self.patch_embed(image)  # [1, encoder_dim, H/(2*patch_size), W/(2*patch_size)]
             features = features.flatten(2).transpose(1, 2)  # [1, num_patches, encoder_dim]
-            features = features + self.pos_emb
+            
+            # Create positional embedding for the actual number of patches
+            num_patches = features.shape[1]
+            pos_emb = self.pos_embed_weight[:, :num_patches, :]
+            features = features + pos_emb
+            
             features = features.transpose(0, 1)
             features = self.transformer_encoder(features)
             features = features.transpose(0, 1)

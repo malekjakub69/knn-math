@@ -10,9 +10,9 @@ import random
 import numpy as np
 from tqdm import tqdm
 
-from model import LatexOCRModel
-from dataset import create_dataloaders, LatexDataset
-from train import train_model, evaluate_model
+from .model import LatexOCRModel
+from .dataset import create_dataloaders, LatexDataset
+from .train import train_model, evaluate_model
 
 
 # Set random seeds for reproducibility

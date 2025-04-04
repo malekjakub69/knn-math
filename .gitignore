@@ -1,4 +1,17 @@
 /dataset
+/dataset_test
+
+commands.txt
+run_docker.bat
+
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
 /outputs
 **/*/__pycache__
 .vscode/
+.DS_Store

@@ -4,3 +4,5 @@ scikit-learn>=1.0.2
 matplotlib>=3.5.1
 pillow>=9.0.0
 scipy>=1.7.3 
+flask>=2.0.0
+werkzeug>=2.0.0 

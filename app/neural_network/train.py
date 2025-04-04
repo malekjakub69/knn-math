@@ -82,7 +82,6 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=2.0)
 
             # Optimalizace
-            optimizer.step()
             scheduler.step()  # update learning rate every batch
             global_step += 1
 

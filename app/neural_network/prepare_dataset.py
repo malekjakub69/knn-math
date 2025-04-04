@@ -3,6 +3,8 @@ import shutil
 import random
 from tqdm import tqdm
 import argparse
+from skimage import io
+import six
 
 
 def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, limit=None):

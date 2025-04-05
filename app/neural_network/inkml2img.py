@@ -1,4 +1,6 @@
 import numpy as np
+from skimage.draw import line
+from skimage.morphology import thin
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageDraw
@@ -125,52 +127,31 @@ def inkml2img(inkml_file_abs_path, img_height=int(80), line_width=int(1), paddin
 
 
 def get_min_coords(trace_group):
-    min_x_coords = min([coord[0] for trace in trace_group for coord in trace])
-    min_y_coords = min([coord[1] for trace in trace_group for coord in trace])
-    max_x_coords = max([coord[0] for trace in trace_group for coord in trace])
-    max_y_coords = max([coord[1] for trace in trace_group for coord in trace])
-
-    return min_x_coords, min_y_coords, max_x_coords, max_y_coords
+    all_coords = np.vstack(trace_group)  # Stack all traces into a single NumPy array
+    min_x, min_y = np.min(all_coords, axis=0)  # Compute min for x and y
+    max_x, max_y = np.max(all_coords, axis=0)  # Compute max for x and y
+    return min_x, min_y, max_x, max_y
 
 
 def shift_trace_grp(trace_group, min_x, min_y):
-
-    shifted_trace_grp = []
-
-    for trace in trace_group:
-        shifted_trace = [[coord[0] - min_x, coord[1] - min_y]
-                         for coord in trace]
-
-        shifted_trace_grp.append(shifted_trace)
-
+    shifted_trace_grp = [np.array(trace) - np.array([min_x, min_y]) for trace in trace_group]
     return shifted_trace_grp
 
 
 def interpolate(trace_group, trace_grp_height, trace_grp_width, box_size):
-
-    interpolated_trace_grp = []
-
     if trace_grp_height == 0:
         trace_grp_height += 1
     if trace_grp_width == 0:
         trace_grp_width += 1
 
-    'Scale for new heigh = box_size'
-    scale_factor = box_size / trace_grp_height
-
-    for trace in trace_group:
-        'coordintes convertion to int type necessary'
-        interpolated_trace = [
-            [round(coord[0] * scale_factor), round(coord[1] * scale_factor)] for coord in trace]
-
-        interpolated_trace_grp.append(interpolated_trace)
-
+    scale_factor = box_size / trace_grp_height  # Compute scale factor
+    interpolated_trace_grp = [np.round(np.array(trace) * scale_factor).astype(int) for trace in trace_group]
     return interpolated_trace_grp
 
 
 if __name__ == "__main__":
     import sys
     input_inkml = sys.argv[1]
-    img = inkml2img(input_inkml, img_height=80, line_width=1, padding=2, color='#284054')
+    img, formula = inkml2img(input_inkml, img_height=80, line_width=1, padding=2, color='#284054')
     img.show()
     print(img.size)

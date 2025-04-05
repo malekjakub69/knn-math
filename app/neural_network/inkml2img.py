@@ -83,7 +83,7 @@ def inkml2img(inkml_file_abs_path, img_height=int(80), line_width=int(1), paddin
     :param img_height: height of the output image (width is variable)
     :param line_width: width of the lines in the image
     :param padding: padding around the image
-    :return: img - PIL Image object
+    :return: image in form of np.array for easy handling (converted from  PIL Image object)
     :return: latex - ground truth formula
     """
     traces_data, formula = get_traces_data(inkml_file_abs_path)
@@ -123,7 +123,7 @@ def inkml2img(inkml_file_abs_path, img_height=int(80), line_width=int(1), paddin
                     x1, y1 = trace[i]
                     x2, y2 = trace[i + 1]
                     draw.line((x1+padding, y1+padding, x2+padding, y2+padding), fill=color, width=line_width)
-    return img, formula
+    return np.array(img), formula
 
 
 def get_min_coords(trace_group):

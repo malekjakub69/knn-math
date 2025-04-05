@@ -5,6 +5,7 @@ from tqdm import tqdm
 import argparse
 from skimage import io
 import six
+import inkml2img
 
 
 def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, limit=None):
@@ -12,7 +13,7 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     Připraví dataset pro neuronovou síť rozdělením na trénovací, validační a testovací sadu.
 
     Args:
-        input_dir: Adresář se vstupními daty
+        input_dir: Adresář se vstupními daty a ground truth train_labels.txt
         output_dir: Adresář pro výstupní data
         train_ratio: Poměr trénovacích dat (0.8 = 80%)
         val_ratio: Poměr validačních dat (0.1 = 10%)
@@ -28,8 +29,45 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     os.makedirs(os.path.join(output_dir, "val_images"), exist_ok=True)
     os.makedirs(os.path.join(output_dir, "test_images"), exist_ok=True)
 
-    # Načtení seznamu obrázků
     input_images_dir = os.path.join(input_dir, "train_images")
+
+    # Nacteni seznamu INKML souboru
+    inkml_files = [f for f in os.listdir(input_images_dir) if f.lower().endswith(".inkml")]
+
+    # Nacteni existujicich souboru z train_labels.txt
+    train_labels_path = os.path.join(input_dir, "train_labels.txt")
+    existing_entries = set()
+
+    if os.path.exists(train_labels_path):
+        with open(train_labels_path, "r", encoding="utf-8") as f:
+            for line in f:
+                image_name = line.strip().split("\t")[0]  # Extract the image name
+                existing_entries.add(image_name)
+
+    # Pokud existují INKML soubory, vygenerovat obrázky a pridat je do train_labels.txt
+    if inkml_files:
+        print("Načítání INKML souborů...")
+        for inkml_file in inkml_files:
+            image_name = os.path.splitext(inkml_file)[0] + ".png"
+
+            # Pokud byl soubor vygenerován dříve, přeskočit
+            if image_name in existing_entries:
+                # print(f"Soubor {image_name} již existuje v train_labels.txt, přeskočeno.")
+                continue
+
+            inkml_path = os.path.join(input_images_dir, inkml_file)
+            # Načtení obrázku z INKML
+            image, formula = inkml2img.inkml2img(inkml_path, img_height=80, line_width=1, padding=0, color="black")
+
+            # Uložení obrázku jako PNG
+            output_image_path = os.path.join(input_images_dir, image_name)
+            io.imsave(output_image_path, image)
+
+            # Přidání do train_labels.txt
+            with open(os.path.join(input_dir, "train_labels.txt"), "a", encoding="utf-8") as f:
+                f.write(f"{image_name}\t{formula}\n")
+
+    # Načtení seznamu obrázků
     image_files = [f for f in os.listdir(input_images_dir) if f.lower().endswith((".png", ".jpg", ".jpeg"))]
 
     # Náhodné zamíchání

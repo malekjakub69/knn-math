@@ -5,7 +5,7 @@ from tqdm import tqdm
 import argparse
 from skimage import io
 import six
-import inkml2img
+from .inkml2img import inkml2img
 
 
 def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, limit=None):
@@ -57,7 +57,7 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
 
             inkml_path = os.path.join(input_images_dir, inkml_file)
             # Načtení obrázku z INKML
-            image, formula = inkml2img.inkml2img(inkml_path, img_height=80, line_width=1, padding=0, color="black")
+            image, formula = inkml2img(inkml_path, img_height=80, line_width=1, padding=0, color="black")
 
             # Uložení obrázku jako PNG
             output_image_path = os.path.join(input_images_dir, image_name)

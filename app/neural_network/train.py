@@ -74,15 +74,15 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
             # Backward pass
             loss = loss / accumulation_steps
             loss.backward()
-            if (i + 1) % accumulation_steps == 0:
-                optimizer.step()
-                optimizer.zero_grad()
-
+            
             # Gradient clipping
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=2.0)
 
-            # Optimalizace
-            scheduler.step()  # update learning rate every batch
+            if (i + 1) % accumulation_steps == 0:
+                optimizer.step()
+                scheduler.step()  # update learning rate after optimizer step
+                optimizer.zero_grad()
+
             global_step += 1
 
             # Akumulace loss

@@ -39,11 +39,9 @@ def main():
     parser.add_argument("--eval_only", action="store_true", help="Pouze vyhodnocení modelu bez tréninku")
     parser.add_argument("--device", type=str, default="auto", choices=["cpu", "mps", "cuda", "auto"], help="Zařízení pro trénink - cpu, mps (pro Apple Silicon), cuda (nVidia GPU) nebo auto (automatická detekce)")
     # Parametry modelu
-    parser.add_argument("--encoder_dim", type=int, default=320, help="Dimenze encoderu")
+    parser.add_argument("--encoder_dim", type=int, default=128, help="Dimenze encoderu")
     parser.add_argument("--num_transformer_layers", type=int, default=4, help="Počet transformer vrstev")
-    parser.add_argument("--decoder_dim", type=int, default=512, help="Dimenze decoderu")
-    parser.add_argument("--embedding_dim", type=int, default=256, help="Dimenze embeddingu")
-    parser.add_argument("--attention_dim", type=int, default=256, help="Dimenze attention")
+    parser.add_argument("--embedding_dim", type=int, default=64, help="Dimenze embeddingu")
     parser.add_argument("--dropout", type=float, default=0.5, help="Dropout")    # Augmentace
     parser.add_argument("--no_augment", action="store_true", help="Vypnout datovou augmentaci")
 
@@ -92,7 +90,7 @@ def main():
     print(f"Slovník uložen do: {vocab_file}")
 
     # Parametry modelu
-    model_params = {"encoder_dim": args.encoder_dim, "decoder_dim": args.decoder_dim, "embedding_dim": args.embedding_dim, "attention_dim": args.attention_dim, "vocab_size": vocab_size, "dropout": args.dropout}
+    model_params = {"encoder_dim": args.encoder_dim, "embedding_dim": args.embedding_dim, "vocab_size": vocab_size, "dropout": args.dropout, "num_transformer_layers": args.num_transformer_layers}
 
     # Vytvoření nebo načtení modelu
     if args.checkpoint:

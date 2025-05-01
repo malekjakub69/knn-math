@@ -114,9 +114,9 @@ def inkml2img(inkml_file_abs_path, img_height=int(80), line_width=int(1), paddin
     for trace_group in all_traces:
         for trace in trace_group:
             if len(trace) == 1:
-                # Draw a single point
+                # Draw a single point as a small line
                 x, y = trace[0]
-                draw.point((x+padding, y+padding), fill=color, size=line_width)
+                draw.line((x+padding, y+padding, x+padding+line_width, y+padding), fill=color, width=line_width)
             else:
                 # Draw lines connecting the points
                 for i in range(len(trace) - 1):

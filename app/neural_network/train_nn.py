@@ -42,7 +42,7 @@ def main():
     parser.add_argument("--encoder_dim", type=int, default=128, help="Dimenze encoderu")
     parser.add_argument("--num_transformer_layers", type=int, default=4, help="Počet transformer vrstev")
     parser.add_argument("--embedding_dim", type=int, default=64, help="Dimenze embeddingu")
-    parser.add_argument("--dropout", type=float, default=0.5, help="Dropout")    # Augmentace
+    parser.add_argument("--dropout", type=float, default=0.65, help="Dropout")    # Augmentace
     parser.add_argument("--no_augment", action="store_true", help="Vypnout datovou augmentaci")
 
     args = parser.parse_args()

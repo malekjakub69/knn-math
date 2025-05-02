@@ -17,18 +17,18 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
     model = model.to(device)
 
     # Definice loss funkce a optimizeru
-    criterion = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)  # ignore padding tokens
+    criterion = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.15)  # ignore padding tokens
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate, 
-                        weight_decay=1e-4, betas=(0.9, 0.98))
+                        weight_decay=5e-4, betas=(0.9, 0.98))
 
-    # Initialize the scheduler differently
+    # Initialize the scheduler
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer,
         max_lr=learning_rate,
         total_steps=epochs * len(train_loader),
-        pct_start=0.15, # First 15% for warmup
+        pct_start=0.20, # First 20% for warmup
         div_factor=10,  # Initial lr = max_lr/10
-        final_div_factor=1000,  # Final lr = max_lr/1000
+        final_div_factor=500,  # Final lr = max_lr/500
         anneal_strategy='cos'
     )
 

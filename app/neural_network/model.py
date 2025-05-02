@@ -11,7 +11,7 @@ class LatexOCRModel(nn.Module):
     """
 
     def __init__(self, encoder_dim=128, vocab_size=1000, embedding_dim=64,
-                 dropout=0.5, num_transformer_layers=4, nhead=8,
+                 dropout=0.65, num_transformer_layers=4, nhead=8,
                  height=80, max_width=2048):  # Removed unnecessary parameters
         super(LatexOCRModel, self).__init__()
         

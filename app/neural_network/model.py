@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms
+import math
 
 class LatexOCRModel(nn.Module):
     """
@@ -11,12 +12,13 @@ class LatexOCRModel(nn.Module):
     """
 
     def __init__(self, encoder_dim=128, vocab_size=1000, embedding_dim=64,
-                 dropout=0.65, num_transformer_layers=4, nhead=8,
-                 height=80, max_width=2048):  # Removed unnecessary parameters
+                 dropout=0.5, num_transformer_layers=4, nhead=8,
+                 height=80, max_width=2048):
         super(LatexOCRModel, self).__init__()
         
         self.height = height
         self.max_width = max_width
+        self.encoder_dim = encoder_dim
         
         # Image normalization
         self.normalize = transforms.Normalize(
@@ -27,30 +29,27 @@ class LatexOCRModel(nn.Module):
         # VGG-inspired block for feature extraction
         self.vgg = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2)  # Reduces height from 80 to 40
+            nn.MaxPool2d(kernel_size=2, stride=2)
         )
 
-        # Update patch parameters: height is fixed, width is variable
+        # Update patch parameters
         self.patch_size = 8
         self.patch_height = height // 2 // self.patch_size  # 40 // 8 = 5
-        self.encoder_dim = encoder_dim
 
         # Patch embedding using a convolutional layer
         self.patch_embed = nn.Conv2d(64, encoder_dim, kernel_size=self.patch_size, stride=self.patch_size)
-        
-        # Adaptive positional embeddings for encoder
-        max_patches = (self.height // 2 // self.patch_size) * (self.max_width // 2 // self.patch_size)
-        self.pos_embed_weight = nn.Parameter(torch.zeros(1, max_patches, encoder_dim))
         
         # Transformer encoder
         encoder_layer = nn.TransformerEncoderLayer(d_model=encoder_dim, nhead=nhead, dropout=dropout, batch_first=True)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_transformer_layers)
 
         # Transformer decoder components
-        self.embedding = nn.Embedding(vocab_size, encoder_dim)  # Changed embedding_dim to encoder_dim for compatibility
+        self.embedding = nn.Embedding(vocab_size, encoder_dim)
         self.embedding_dropout = nn.Dropout(dropout)
         decoder_layer = nn.TransformerDecoderLayer(d_model=encoder_dim, nhead=nhead, dropout=dropout, batch_first=True)
         self.transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=num_transformer_layers)
@@ -61,6 +60,45 @@ class LatexOCRModel(nn.Module):
         # Weight initialization
         self._init_weights()
 
+    def get_1d_sinusoidal_pos_embed(self, pos, dim):
+        """Generate 1D sinusoidal positional embeddings."""
+        assert dim % 2 == 0, f"Embedding dimension {dim} should be even"
+        pos = pos.unsqueeze(-1)
+        omega = torch.exp(torch.arange(0, dim, 2, device=pos.device) * (-math.log(10000.0) / dim))
+        out = pos * omega
+        emb_sin = torch.sin(out)
+        emb_cos = torch.cos(out)
+        emb = torch.cat([emb_sin, emb_cos], dim=-1)
+        return emb
+
+    def get_2d_sinusoidal_pos_embed(self, h, w, embed_dim):
+        """
+        Generate 2D sinusoidal positional embeddings.
+        Args:
+            h, w: height and width of the grid
+            embed_dim: embedding dimension (must be even)
+        """
+        grid_h = torch.arange(h, device=self.embedding.weight.device)
+        grid_w = torch.arange(w, device=self.embedding.weight.device)
+        grid_h, grid_w = torch.meshgrid(grid_h, grid_w, indexing='ij')
+        
+        # Flatten the grids
+        grid_h = grid_h.flatten()
+        grid_w = grid_w.flatten()
+        
+        # Split dimension for height and width components
+        dim = embed_dim // 2
+        h_embed = self.get_1d_sinusoidal_pos_embed(grid_h, dim)
+        w_embed = self.get_1d_sinusoidal_pos_embed(grid_w, dim)
+        pos_embed = torch.cat([h_embed, w_embed], dim=-1)
+        
+        return pos_embed
+
+    def get_decoder_pos_embed(self, length, dim):
+        """Generate positional embeddings for decoder sequence."""
+        pos = torch.arange(length, device=self.embedding.weight.device)
+        return self.get_1d_sinusoidal_pos_embed(pos, dim)
+
     def _init_weights(self):
         """Inicializace vah modelu."""
         for name, param in self.named_parameters():
@@ -69,6 +107,9 @@ class LatexOCRModel(nn.Module):
                     nn.init.xavier_uniform_(param)
                 elif "bias" in name:
                     nn.init.constant_(param, 0.0)
+            # Add positional embedding initialization
+            elif "pos_embed_weight" in name:
+                nn.init.normal_(param, mean=0.0, std=0.02)  # Common initialization for transformers
 
     def preprocess_image(self, image):
         """
@@ -141,18 +182,22 @@ class LatexOCRModel(nn.Module):
 
         # Patch embedding
         features = self.patch_embed(images)  # [batch_size, encoder_dim, H/(2*patch_size), W/(2*patch_size)]
+        h, w = features.shape[2:]
         features = features.flatten(2).transpose(1, 2)  # [batch_size, num_patches, encoder_dim]
         
-        # Create positional embedding for the actual number of patches
-        num_patches = features.shape[1]
-        pos_emb = self.pos_embed_weight[:, :num_patches, :]
-        features = features + pos_emb  # Add positional embeddings
+        # Add 2D positional embeddings to image features
+        pos_embed = self.get_2d_sinusoidal_pos_embed(h, w, self.encoder_dim)
+        pos_embed = pos_embed.unsqueeze(0).expand(batch_size, -1, -1)
+        features = features + pos_embed
 
         # Transformer encoder
         memory = self.transformer_encoder(features)  # [batch_size, num_patches, encoder_dim]
 
-        # Prepare decoder inputs
+        # Prepare decoder inputs with positional embeddings
         tgt = self.embedding(captions)  # [batch_size, max_seq_length, encoder_dim]
+        decoder_pos = self.get_decoder_pos_embed(seq_length, self.encoder_dim)
+        decoder_pos = decoder_pos.unsqueeze(0).expand(batch_size, -1, -1)
+        tgt = tgt + decoder_pos
         tgt = self.embedding_dropout(tgt)
 
         # Create attention mask for the actual sequence length
@@ -179,18 +224,18 @@ class LatexOCRModel(nn.Module):
             # Preprocess image
             image = self.preprocess_image(image)
             
-            # VGG block and Patch embedding & Transformer encoder
-            image = self.vgg(image)  # [1, 64, H/2, W/2]
-            features = self.patch_embed(image)  # [1, encoder_dim, H/(2*patch_size), W/(2*patch_size)]
+            # VGG block and Patch embedding
+            image = self.vgg(image)
+            features = self.patch_embed(image)
+            h, w = features.shape[2:]
             features = features.flatten(2).transpose(1, 2)  # [1, num_patches, encoder_dim]
             
-            # Create positional embedding for the actual number of patches
-            num_patches = features.shape[1]
-            pos_emb = self.pos_embed_weight[:, :num_patches, :]
-            features = features + pos_emb
+            # Add 2D positional embeddings
+            pos_embed = self.get_2d_sinusoidal_pos_embed(h, w, self.encoder_dim)
+            pos_embed = pos_embed.unsqueeze(0)  # [1, num_patches, encoder_dim]
+            features = features + pos_embed
             
             # Transformer encoder
-            features = features.transpose(0, 1)  # [num_patches, 1, encoder_dim]
             memory = self.transformer_encoder(features)
 
             if beam_size > 1:
@@ -210,12 +255,19 @@ class LatexOCRModel(nn.Module):
                     
                 # Prepare decoder input
                 tgt = torch.LongTensor([start_token] + seq).to(device)
-                tgt = self.embedding(tgt).unsqueeze(1)  # [seq_len, 1, encoder_dim]
-                tgt_mask = self.generate_square_subsequent_mask(len(tgt)).to(device)
+                tgt = self.embedding(tgt)
+                seq_length = tgt.size(0)
+                
+                # Add positional embeddings
+                decoder_pos = self.get_decoder_pos_embed(seq_length, self.encoder_dim)
+                tgt = tgt + decoder_pos
+                tgt = tgt.unsqueeze(1)  # [seq_len, 1, encoder_dim]
+                
+                tgt_mask = self.generate_square_subsequent_mask(seq_length).to(device)
                 
                 # Decode
                 output = self.transformer_decoder(tgt, memory, tgt_mask=tgt_mask)
-                predictions = self.fc(output[-1])  # Get predictions for next token
+                predictions = self.fc(output[-1])
                 
                 # Get top k candidates
                 log_probs = F.log_softmax(predictions, dim=-1)
@@ -239,13 +291,19 @@ class LatexOCRModel(nn.Module):
     def _greedy_decode(self, memory, max_length, start_token, end_token, device):
         """Helper method for greedy decoding."""
         generated_sequence = []
-        curr_token = torch.LongTensor([start_token]).to(device)
         
         for _ in range(max_length):
             # Prepare decoder input
             tgt = torch.LongTensor([start_token] + generated_sequence).to(device)
-            tgt = self.embedding(tgt).unsqueeze(1)  # [seq_len, 1, encoder_dim]
-            tgt_mask = self.generate_square_subsequent_mask(len(tgt)).to(device)
+            tgt = self.embedding(tgt)
+            seq_length = tgt.size(0)
+            
+            # Add positional embeddings
+            decoder_pos = self.get_decoder_pos_embed(seq_length, self.encoder_dim)
+            tgt = tgt + decoder_pos
+            tgt = tgt.unsqueeze(1)  # [seq_len, 1, encoder_dim]
+            
+            tgt_mask = self.generate_square_subsequent_mask(seq_length).to(device)
             
             # Decode
             output = self.transformer_decoder(tgt, memory, tgt_mask=tgt_mask)

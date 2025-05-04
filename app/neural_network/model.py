@@ -39,11 +39,13 @@ class LatexOCRModel(nn.Module):
 
         # Update patch parameters
         self.patch_size = 8
-        self.patch_height = height // 2 // self.patch_size  # 40 // 8 = 5
+        self.patch_embed = nn.Sequential(
+            nn.Conv2d(64, encoder_dim, kernel_size=3, padding=1),  # Maintain spatial dimensions
+            nn.BatchNorm2d(encoder_dim),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(encoder_dim, encoder_dim, kernel_size=self.patch_size, stride=self.patch_size)  # Patch embedding
+        )
 
-        # Patch embedding using a convolutional layer
-        self.patch_embed = nn.Conv2d(64, encoder_dim, kernel_size=self.patch_size, stride=self.patch_size)
-        
         # Transformer encoder
         encoder_layer = nn.TransformerEncoderLayer(d_model=encoder_dim, nhead=nhead, dropout=dropout, batch_first=True)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_transformer_layers)
@@ -114,7 +116,7 @@ class LatexOCRModel(nn.Module):
     def preprocess_image(self, image):
         """
         Preprocesses the input image to have fixed height while preserving aspect ratio.
-        Also pads width to be divisible by patch_size.
+        Also ensures the width is divisible by patch_size.
         
         Args:
             image: Input image of shape [batch_size, channels, height, width]
@@ -124,11 +126,12 @@ class LatexOCRModel(nn.Module):
         """
         batch_size, channels, height, width = image.shape
         
-        # Resize to fixed height while preserving aspect ratio
+        # First, resize to fixed height while preserving aspect ratio
         if height != self.height:
             scale_factor = self.height / height
             new_width = int(width * scale_factor)
-            image = F.interpolate(image, size=(self.height, new_width), mode='bilinear', align_corners=False)
+            # Use bicubic interpolation for better quality
+            image = F.interpolate(image, size=(self.height, new_width), mode='bicubic', align_corners=False)
         
         # Get current dimensions after resize
         _, _, _, current_width = image.shape
@@ -143,12 +146,20 @@ class LatexOCRModel(nn.Module):
         # Check if width exceeds max_width
         _, _, _, padded_width = image.shape
         if padded_width > self.max_width:
-            # If image is too wide, resize it to max width
-            image = F.interpolate(image, size=(self.height, self.max_width), mode='bilinear', align_corners=False)
+            image = F.interpolate(image, size=(self.height, self.max_width), mode='bicubic', align_corners=False)
         
-        # Normalize pixel values
-        if channels == 3:  # Only normalize RGB images
-            image = self.normalize(image)
+        # Ensure minimum width for transformer processing
+        min_width = self.patch_size * 2  # At least 2 patches
+        if padded_width < min_width:
+            padding_width = min_width - padded_width
+            padding = (0, padding_width, 0, 0)
+            image = F.pad(image, padding, "constant", 0)
+        
+        # Normalize pixel values if not already normalized
+        if channels == 3 and image.max() > 1:
+            image = image / 255.0
+            if self.normalize is not None:
+                image = self.normalize(image)
 
         return image
 
@@ -246,6 +257,8 @@ class LatexOCRModel(nn.Module):
     def _beam_search(self, memory, max_length, start_token, end_token, beam_size, device):
         """Helper method for beam search decoding."""
         sequences = [([], 0.0)]
+        memory = memory.expand(beam_size, -1, -1)  # Expand memory for beam search
+        
         for _ in range(max_length):
             all_candidates = []
             for seq, score in sequences:
@@ -263,7 +276,9 @@ class LatexOCRModel(nn.Module):
                 tgt = tgt + decoder_pos
                 tgt = tgt.unsqueeze(1)  # [seq_len, 1, encoder_dim]
                 
-                tgt_mask = self.generate_square_subsequent_mask(seq_length).to(device)
+                # Create attention mask with proper shape
+                tgt_mask = torch.zeros((seq_length, seq_length), device=device).fill_(float('-inf'))
+                tgt_mask = torch.triu(tgt_mask, diagonal=1)
                 
                 # Decode
                 output = self.transformer_decoder(tgt, memory, tgt_mask=tgt_mask)
@@ -303,7 +318,9 @@ class LatexOCRModel(nn.Module):
             tgt = tgt + decoder_pos
             tgt = tgt.unsqueeze(1)  # [seq_len, 1, encoder_dim]
             
-            tgt_mask = self.generate_square_subsequent_mask(seq_length).to(device)
+            # Create attention mask with proper shape
+            tgt_mask = torch.zeros((seq_length, seq_length), device=device).fill_(float('-inf'))
+            tgt_mask = torch.triu(tgt_mask, diagonal=1)
             
             # Decode
             output = self.transformer_decoder(tgt, memory, tgt_mask=tgt_mask)

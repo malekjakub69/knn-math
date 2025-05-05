@@ -191,7 +191,47 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
     print("Training complete!")
     return model
 
+# Old version: Token-Level Accuracy
+# def evaluate_model(model, test_loader, device="cuda" if torch.cuda.is_available() else "cpu"):
+#     """
+#     Vyhodnocení natrénovaného modelu na testovacím datasetu.
+#     """
+#     model = model.to(device)
+#     model.eval()
 
+#     criterion = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)
+
+#     test_loss = 0.0
+#     correct_predictions = 0
+#     total_tokens = 0
+
+#     with torch.no_grad():
+#         for images, captions, lengths in tqdm(test_loader):
+#             images = images.to(device)
+#             captions = captions.to(device)
+
+#             outputs = model(images, captions, lengths)
+#             batch_size = outputs.size(0)
+#             outputs_flat = outputs.view(-1, outputs.size(2))
+#             targets_flat = captions.view(-1)
+
+#             loss = criterion(outputs_flat, targets_flat)
+#             test_loss += loss.item()
+
+#             _, predictions = outputs.max(2)
+#             mask = captions != 0
+#             correct = (predictions == captions) & mask
+#             correct_predictions += correct.sum().item()
+#             total_tokens += mask.sum().item()
+
+#     avg_test_loss = test_loss / len(test_loader)
+#     accuracy = correct_predictions / total_tokens
+
+#     print(f"Test Loss: {avg_test_loss:.4f}, Accuracy: {accuracy:.4f}")
+
+#     return avg_test_loss, accuracy
+
+# New version: Token-Level Accuracy with F1 Score
 def evaluate_model(model, test_loader, device="cuda" if torch.cuda.is_available() else "cpu"):
     """
     Vyhodnocení natrénovaného modelu na testovacím datasetu.
@@ -204,6 +244,8 @@ def evaluate_model(model, test_loader, device="cuda" if torch.cuda.is_available(
     test_loss = 0.0
     correct_predictions = 0
     total_tokens = 0
+    total_sequences = 0
+    correct_sequences = 0
 
     with torch.no_grad():
         for images, captions, lengths in tqdm(test_loader):
@@ -215,18 +257,36 @@ def evaluate_model(model, test_loader, device="cuda" if torch.cuda.is_available(
             outputs_flat = outputs.view(-1, outputs.size(2))
             targets_flat = captions.view(-1)
 
+            # Calculate loss
             loss = criterion(outputs_flat, targets_flat)
             test_loss += loss.item()
 
+            # Get predictions
             _, predictions = outputs.max(2)
+
+            # Mask padding tokens
             mask = captions != 0
+
+            # Token-level accuracy
             correct = (predictions == captions) & mask
             correct_predictions += correct.sum().item()
             total_tokens += mask.sum().item()
 
+            # Sequence-level accuracy
+            for i in range(batch_size):
+                target_seq = captions[i, :lengths[i]].tolist()  # Ground truth sequence
+                pred_seq = predictions[i, :lengths[i]].tolist()  # Predicted sequence
+                if target_seq == pred_seq:
+                    correct_sequences += 1
+                total_sequences += 1
+
+    # Calculate metrics
     avg_test_loss = test_loss / len(test_loader)
-    accuracy = correct_predictions / total_tokens
+    token_accuracy = correct_predictions / total_tokens
+    sequence_accuracy = correct_sequences / total_sequences
 
-    print(f"Test Loss: {avg_test_loss:.4f}, Accuracy: {accuracy:.4f}")
+    print(f"Test Loss: {avg_test_loss:.4f}")
+    print(f"Token-Level Accuracy: {token_accuracy:.4f}")
+    print(f"Sequence-Level Accuracy: {sequence_accuracy:.4f}")
 
-    return avg_test_loss, accuracy
+    return avg_test_loss, token_accuracy, sequence_accuracy

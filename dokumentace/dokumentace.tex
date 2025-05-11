@@ -1,0 +1,120 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[czech]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{url}
+% \usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{dirtree}
+\usepackage{lmodern}        % Better font
+\usepackage{titling}        % For custom title layout
+\usepackage{svg}
+\usepackage{float}          % [H] option for figures 
+
+\graphicspath{ {./img/} }
+
+%===== Hyperlinky =====
+\usepackage[colorlinks]{hyperref}
+\hypersetup{citebordercolor=1 0 0,
+			colorlinks=true,
+			citecolor=black,
+			urlcolor=blue,
+            linkcolor=black,    % Zde změnit barvu tableofcontents
+}
+
+%===== Citace =====
+%backend=biber, , sortlocale=cs_CZ,autolang=other, language=czech
+\usepackage[style=iso-numeric, backend=biber]{biblatex}
+\addbibresource{bibliography.bib}
+\DeclareFieldFormat{labelnumberwidth}{\mkbibbrackets{#1}}
+\usepackage{csquotes}
+
+
+\geometry{a4paper, margin=2.5cm}
+
+\lstset{
+    basicstyle=\small\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+    framexleftmargin=0mm,
+    framexrightmargin=0mm,
+    framesep=2mm,
+    xleftmargin=5mm,
+    xrightmargin=0mm,
+    language=Python
+}
+
+% Formátování titulku
+% \pretitle{%
+%   \begin{center}
+%     \includegraphics[width=0.6\textwidth]{img/FIT_color_CMYK_EN.eps}\\[\bigskipamount]
+%     \Huge\bfseries
+% }
+\pretitle{\begin{center}\Huge\bfseries}
+\posttitle{\par\end{center}\vskip 0.5em}
+\preauthor{\begin{center}\Large}
+\postauthor{\end{center}}
+\predate{\begin{center}\small}
+\postdate{\end{center}}
+
+\title{KNN: Rozpoznání matematických rovnic}
+\author{Jakub Málek\\Tomáš Milostný\\Marek Večeřa}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}   % První stránka bez číslování
+
+\begin{center}
+    \large \texttt{\{xmalek17,xmilos02,xvecer31\}@vutbr.fit.cz}\\[1ex]
+    \normalsize Akademický rok 2024/2025
+\end{center}
+
+\vspace{10cm}
+% ===== LOGO =====
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/FIT_color_CMYK_EN.eps}
+\end{figure}
+
+
+\newpage
+\tableofcontents
+
+\newpage
+\section{Úvod}
+
+Tento dokument popisuje strukturu a implementaci projektu KNN-Math, který se zaměřuje na rozpoznávání matematických vzorců pomocí algoritmu k-nejbližších sousedů (KNN). Systém je navržen pro rozpoznávání jak tištěných, tak ručně psaných matematických výrazů a jejich převod do formátu LaTeX.
+
+\newpage
+\include{text/body.tex}
+
+\section{Závěr}
+
+Tato dokumentace popisuje strukturu a implementaci projektu KNN-Math. Projekt je navržen modulárně, což umožňuje snadnou údržbu a rozšiřování. Implementovaný systém používá algoritmus k-nejbližších sousedů pro rozpoznávání matematických symbolů a převod do LaTeX formátu.
+
+% Citace:
+\newpage
+\nocite{*}  % Vypsat všechno
+\printbibliography[heading=bibintoc, title={Zdroje}]
+
+\end{document} 

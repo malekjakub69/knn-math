@@ -1,60 +1,3 @@
-\documentclass[12pt,a4paper]{article}
-\usepackage[czech]{babel}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{lmodern}
-\usepackage{graphicx}
-\usepackage{listings}
-\usepackage{url}
-\usepackage{hyperref}
-\usepackage{xcolor}
-\usepackage{geometry}
-\usepackage{dirtree}
-
-
-\geometry{a4paper, margin=2.5cm}
-
-\lstset{
-    basicstyle=\small\ttfamily,
-    keywordstyle=\color{blue},
-    commentstyle=\color{green!50!black},
-    stringstyle=\color{red},
-    numbers=left,
-    numberstyle=\tiny\color{gray},
-    stepnumber=1,
-    numbersep=5pt,
-    backgroundcolor=\color{white},
-    showspaces=false,
-    showstringspaces=false,
-    showtabs=false,
-    frame=single,
-    tabsize=4,
-    captionpos=b,
-    breaklines=true,
-    breakatwhitespace=false,
-    framexleftmargin=0mm,
-    framexrightmargin=0mm,
-    framesep=2mm,
-    xleftmargin=5mm,
-    xrightmargin=0mm,
-    language=Python
-}
-
-\title{KNN-Math: Rozpoznávání matematických vzorců}
-\author{Dokumentace projektu}
-\date{\today}
-
-\begin{document}
-
-\maketitle
-
-\tableofcontents
-\newpage
-
-\section{Úvod}
-
-Tento dokument popisuje strukturu a implementaci projektu KNN-Math, který se zaměřuje na rozpoznávání matematických vzorců pomocí algoritmu k-nejbližších sousedů (KNN). Systém je navržen pro rozpoznávání jak tištěných, tak ručně psaných matematických výrazů a jejich převod do formátu LaTeX.
-
 \section{Struktura projektu}
 
 Projekt je organizován do modulárního systému, který usnadňuje údržbu a rozšiřitelnost. Hlavní adresářová struktura je následující:
@@ -192,9 +135,3 @@ Navržená struktura projektu umožňuje snadné rozšíření o další funkce:
     
     \item \textbf{Webové rozhraní} - Vytvoření webového rozhraní pro snadné použití aplikace.
 \end{itemize}
-
-\section{Závěr}
-
-Tato dokumentace popisuje strukturu a implementaci projektu KNN-Math. Projekt je navržen modulárně, což umožňuje snadnou údržbu a rozšiřování. Implementovaný systém používá algoritmus k-nejbližších sousedů pro rozpoznávání matematických symbolů a převod do LaTeX formátu.
-
-\end{document} 

@@ -206,9 +206,9 @@ def main():
         model.load_state_dict(checkpoint["model_state_dict"])
 
         # Evaluace modelu
-        test_loss, accuracy = evaluate_model(model=model, test_loader=test_loader, device=device)
+        test_loss, accuracy, seq_accuracy = evaluate_model(model=model, test_loader=test_loader, device=device)
 
-        print(f"Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.4f}")
+        print(f"Test Loss: {test_loss:.4f}, Token Accuracy: {accuracy:.4f}, Sequence Accuracy: {seq_accuracy:.4f}")
 
     if not (args.train or args.test or args.recognize or args.mode):
         print("Nebyla zadána žádná akce. Použijte --help pro nápovědu.")

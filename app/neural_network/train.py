@@ -4,98 +4,121 @@ import torch.optim as optim
 import time
 import numpy as np
 from tqdm import tqdm
+from torch.nn import CTCLoss
+from torch.amp import autocast, GradScaler
 
+def coverage_loss(attention_weights, coverage_vector):
+    """Calculate coverage loss to prevent under/over-attention."""
+    min_value = torch.min(attention_weights, coverage_vector)
+    loss = torch.sum(min_value, dim=2)
+    return torch.mean(loss)
 
 def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
                 device="cuda" if torch.cuda.is_available() else "cpu", 
                 checkpoint_path="checkpoints"):
     """
     Trénink modelu pro převod matematických výrazů do LaTeX.
-    Používá batch-wise learning rate scheduling s delším warm-up.
+    Používá kombinaci CTC a CrossEntropy loss s mixed precision training.
     """
     # Přesun modelu na zvolené zařízení (GPU/CPU)
     model = model.to(device)
 
-    # Definice loss funkce a optimizeru
-    criterion = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.15)  # ignore padding tokens
+    # Definice loss funkcí a optimizeru
+    ctc_criterion = nn.CTCLoss(blank=0, zero_infinity=True)
+    ce_criterion = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.15)
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate, 
-                        weight_decay=5e-4, betas=(0.9, 0.98))
+                        weight_decay=0.01, betas=(0.9, 0.98))
 
-    # Initialize the scheduler
+    # Initialize the scheduler and scaler for mixed precision training
     scheduler = optim.lr_scheduler.OneCycleLR(
         optimizer,
         max_lr=learning_rate,
         total_steps=epochs * len(train_loader),
-        pct_start=0.20, # First 20% for warmup
-        div_factor=10,  # Initial lr = max_lr/10
-        final_div_factor=500,  # Final lr = max_lr/500
+        pct_start=0.30,
+        div_factor=10,
+        final_div_factor=500,
         anneal_strategy='cos'
     )
+    scaler = GradScaler(device)
 
-    # Early stopping
+    # Loss weights
+    ctc_weight = 0.5
+    ce_weight = 0.5
+
+    # Early stopping parameters
     patience = 10
     early_stopping_counter = 0
-
-    # Nejlepší validační loss
     best_val_loss = float("inf")
     best_accuracy = 0.0
-
-    global_step = 0  # track steps for batch-wise scheduling
-    accumulation_steps = 2  # Effective batch size = 32*2 = 64
+    global_step = 0
+    accumulation_steps = 2
 
     # Training loop
     for epoch in range(epochs):
         print(f"\nEpoch {epoch+1}/{epochs}")
         print(f"Starting Learning rate: {optimizer.param_groups[0]['lr']:.6f}")
 
-        # Trénink
+        # Training
         model.train()
         train_loss = 0.0
         total_correct = 0
         total_tokens = 0
         start_time = time.time()
 
-        # Průchod trénovacím datasetem
         for i, (images, captions, lengths) in enumerate(tqdm(train_loader)):
-            # Přesun na zvolené zařízení
             images = images.to(device)
             captions = captions.to(device)
-
-            # Forward pass
-            outputs = model(images, captions, lengths)
-
-            # Reshape pro výpočet loss
-            outputs = outputs.view(-1, outputs.size(2))
-            targets = captions.view(-1)
-
-            # Výpočet loss
-            loss = criterion(outputs, targets)
-
-            # Backward pass
-            loss = loss / accumulation_steps
-            loss.backward()
             
-            # Gradient clipping
-            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=2.0)
+            # Mixed precision training
+            with autocast(device_type='cuda' if device == 'cuda' else 'cpu'):
+                # Forward pass
+                outputs = model(images, captions, lengths)
+                batch_size = outputs.size(0)
+
+                # Prepare targets for CTC loss
+                targets = captions.clone()
+                target_lengths = torch.as_tensor(lengths, device=device)
+                input_lengths = torch.full((batch_size,), outputs.size(1), device=device)
+
+                # Calculate both losses
+                outputs_flat = outputs.view(-1, outputs.size(2))
+                targets_flat = captions.view(-1)
+                
+                # CTC loss
+                log_probs = outputs.log_softmax(2)
+                ctc_loss = ctc_criterion(log_probs.transpose(0, 1), targets, input_lengths, target_lengths)
+                
+                # Cross entropy loss
+                ce_loss = ce_criterion(outputs_flat, targets_flat)
+                
+                # Combine losses
+                loss = ctc_weight * ctc_loss + ce_weight * ce_loss
+
+            # Backward pass with gradient scaling
+            scaled_loss = scaler.scale(loss) / accumulation_steps
+            scaled_loss.backward()
 
             if (i + 1) % accumulation_steps == 0:
-                optimizer.step()
-                scheduler.step()  # update learning rate after optimizer step
+                # Gradient clipping
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=2.0)
+                
+                # Optimizer step
+                scaler.step(optimizer)
+                scheduler.step()
+                scaler.update()
                 optimizer.zero_grad()
 
             global_step += 1
-
-            # Akumulace loss
             train_loss += loss.item()
 
-            # Výpočet přesnosti
-            _, predictions = outputs.max(1)
-            mask = targets != 0  # Ignorování padding tokenů
-            correct = (predictions == targets) & mask
+            # Calculate accuracy
+            _, predictions = outputs_flat.max(1)
+            mask = targets_flat != 0
+            correct = (predictions == targets_flat) & mask
             total_correct += correct.sum().item()
             total_tokens += mask.sum().item()
 
-            # Log každých 100 batchů
             if (i + 1) % 100 == 0:
                 batch_accuracy = correct.sum().item() / max(1, mask.sum().item())
                 current_lr = optimizer.param_groups[0]['lr']
@@ -120,7 +143,7 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
                 outputs = outputs.view(-1, outputs.size(2))
                 targets = captions.view(-1)
 
-                loss = criterion(outputs, targets)
+                loss = ce_criterion(outputs, targets)
                 val_loss += loss.item()
 
                 _, predictions = outputs.max(1)
@@ -190,46 +213,6 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
 
     print("Training complete!")
     return model
-
-# Old version: Token-Level Accuracy
-# def evaluate_model(model, test_loader, device="cuda" if torch.cuda.is_available() else "cpu"):
-#     """
-#     Vyhodnocení natrénovaného modelu na testovacím datasetu.
-#     """
-#     model = model.to(device)
-#     model.eval()
-
-#     criterion = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)
-
-#     test_loss = 0.0
-#     correct_predictions = 0
-#     total_tokens = 0
-
-#     with torch.no_grad():
-#         for images, captions, lengths in tqdm(test_loader):
-#             images = images.to(device)
-#             captions = captions.to(device)
-
-#             outputs = model(images, captions, lengths)
-#             batch_size = outputs.size(0)
-#             outputs_flat = outputs.view(-1, outputs.size(2))
-#             targets_flat = captions.view(-1)
-
-#             loss = criterion(outputs_flat, targets_flat)
-#             test_loss += loss.item()
-
-#             _, predictions = outputs.max(2)
-#             mask = captions != 0
-#             correct = (predictions == captions) & mask
-#             correct_predictions += correct.sum().item()
-#             total_tokens += mask.sum().item()
-
-#     avg_test_loss = test_loss / len(test_loader)
-#     accuracy = correct_predictions / total_tokens
-
-#     print(f"Test Loss: {avg_test_loss:.4f}, Accuracy: {accuracy:.4f}")
-
-#     return avg_test_loss, accuracy
 
 # New version: Token-Level Accuracy with F1 Score
 def evaluate_model(model, test_loader, device="cuda" if torch.cuda.is_available() else "cpu"):

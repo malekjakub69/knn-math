@@ -30,9 +30,10 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     os.makedirs(os.path.join(output_dir, "test_images"), exist_ok=True)
 
     input_images_dir = os.path.join(input_dir, "train_images")
+    input_inkml_dir = os.path.join(input_dir, "inkml")
 
     # Nacteni seznamu INKML souboru
-    inkml_files = [f for f in os.listdir(input_images_dir) if f.lower().endswith(".inkml")]
+    inkml_files = [f for f in os.listdir(input_inkml_dir) if f.lower().endswith(".inkml")]
 
     # Nacteni existujicich souboru z train_labels.txt
     train_labels_path = os.path.join(input_dir, "train_labels.txt")
@@ -55,7 +56,7 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
                 # print(f"Soubor {image_name} již existuje v train_labels.txt, přeskočeno.")
                 continue
 
-            inkml_path = os.path.join(input_images_dir, inkml_file)
+            inkml_path = os.path.join(input_inkml_dir, inkml_file)
             # Načtení obrázku z INKML
             image, formula = inkml2img(inkml_path, img_height=80, line_width=1, padding=0, color="black")
 

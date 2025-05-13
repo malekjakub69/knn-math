@@ -11,6 +11,10 @@ run_docker.bat
 *.out
 *.synctex.gz
 *.toc
+*.bbl
+*.bcf
+*.run.xml
+*.bbl-SAVE-ERROR
 /outputs
 **/*/__pycache__
 .vscode/

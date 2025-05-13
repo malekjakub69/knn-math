@@ -5,7 +5,8 @@ from tqdm import tqdm
 import argparse
 from skimage import io
 import six
-from .inkml2img import inkml2img
+from tqdm import tqdm
+from inkml2img import inkml2img
 
 
 def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, limit=None):
@@ -13,7 +14,7 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     Připraví dataset pro neuronovou síť rozdělením na trénovací, validační a testovací sadu.
 
     Args:
-        input_dir: Adresář se vstupními daty a ground truth train_labels.txt
+        input_dir: Adresář se vstupními daty (./train_images/ a ./inkml/) a ground truth train_labels.txt
         output_dir: Adresář pro výstupní data
         train_ratio: Poměr trénovacích dat (0.8 = 80%)
         val_ratio: Poměr validačních dat (0.1 = 10%)
@@ -48,7 +49,7 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     # Pokud existují INKML soubory, vygenerovat obrázky a pridat je do train_labels.txt
     if inkml_files:
         print("Načítání INKML souborů...")
-        for inkml_file in inkml_files:
+        for inkml_file in tqdm(inkml_files):
             image_name = os.path.splitext(inkml_file)[0] + ".png"
 
             # Pokud byl soubor vygenerován dříve, přeskočit

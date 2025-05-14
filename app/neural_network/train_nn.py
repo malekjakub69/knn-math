@@ -109,16 +109,16 @@ def main():
     if args.eval_only:
         # Pouze vyhodnocení modelu
         print("Vyhodnocování modelu...")
-        test_loss, accuracy = evaluate_model(model=model, test_loader=test_loader, device=device)
-        print(f"Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.4f}")
+        test_loss, token_accuracy, sequence_accuracy = evaluate_model(model=model, test_loader=test_loader, device=device)
+        print(f"Test Loss: {test_loss:.4f}, Token Accuracy: {token_accuracy:.4f}, Sequence Accuracy: {sequence_accuracy:.4f}")
     else:
         # Trénování modelu
         print("Spouštění tréninku...")
         model = train_model(model=model, train_loader=train_loader, val_loader=val_loader, learning_rate=args.learning_rate, epochs=args.epochs, device=device, checkpoint_path=checkpoint_dir)
         # Vyhodnocení natrénovaného modelu
         print("Vyhodnocování modelu...")
-        test_loss, accuracy = evaluate_model(model=model, test_loader=test_loader, device=device)
-        print(f"Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.4f}")
+        test_loss, token_accuracy, sequence_accuracy = evaluate_model(model=model, test_loader=test_loader, device=device)
+        print(f"Test Loss: {test_loss:.4f}, Token Accuracy: {token_accuracy:.4f}, Sequence Accuracy: {sequence_accuracy:.4f}")
 
 
 if __name__ == "__main__":

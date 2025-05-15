@@ -34,7 +34,7 @@ def main():
     # Parametry tréninku
     parser.add_argument("--batch_size", type=int, default=64, help="Velikost batch")
     parser.add_argument("--epochs", type=int, default=100, help="Počet epoch")
-    parser.add_argument("--learning_rate", type=float, default=3e-4, help="Learning rate")
+    parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate")
     parser.add_argument("--checkpoint", type=str, default=None, help="Cesta k checkpointu modelu")
     parser.add_argument("--eval_only", action="store_true", help="Pouze vyhodnocení modelu bez tréninku")
     parser.add_argument("--device", type=str, default="auto", choices=["cpu", "mps", "cuda", "auto"], help="Zařízení pro trénink - cpu, mps (pro Apple Silicon), cuda (nVidia GPU) nebo auto (automatická detekce)")

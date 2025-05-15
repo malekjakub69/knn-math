@@ -20,11 +20,13 @@ class LatexOCRModel(nn.Module):
         self.max_width = max_width
         self.encoder_dim = encoder_dim
         
-        # Image normalization
-        self.normalize = transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225]
+        self.normalize = transforms.Normalize(      # Custom computed mean and std for our grayscale dataset
+            mean = [0.776],
+            std = [0.276]
+            # mean=[0.485, 0.456, 0.406],
+            # std=[0.229, 0.224, 0.225]
         )
+
 
         # VGG-inspired block for feature extraction
         self.vgg = nn.Sequential(

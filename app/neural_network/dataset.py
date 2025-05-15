@@ -44,11 +44,16 @@ class LatexDataset(Dataset):
             self.transform = transform
         else:
             # Standartní normalizace
-            norm_mean = [0.485, 0.456, 0.406]
-            norm_std = [0.229, 0.224, 0.225]
+            # norm_mean = [0.485, 0.456, 0.406]
+            # norm_std = [0.229, 0.224, 0.225]
+            # Mean: 0.7753937244415283      # Skutecne vypocitane hodnoty z datasetu (real + synthetic)
+            # Std: 0.27609017491340637
+            norm_mean = [0.776]
+            norm_std = [0.276]
 
             # Základní transformace - použité pro všechny
             base_transform = [
+                transforms.Grayscale(num_output_channels=1),  # Convert to grayscale
                 transforms.Resize((224, 224)), 
                 transforms.ToTensor(),
                 transforms.Normalize(mean=norm_mean, std=norm_std)
@@ -60,6 +65,7 @@ class LatexDataset(Dataset):
                 blur = transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0))
                 
                 self.transform = transforms.Compose([
+                    transforms.Grayscale(num_output_channels=1),  # Convert to grayscale
                     transforms.RandomApply([color_jitter], p=0.4),
                     transforms.RandomApply([blur], p=0.3),
                     transforms.RandomRotation(degrees=10),

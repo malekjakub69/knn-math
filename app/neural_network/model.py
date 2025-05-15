@@ -28,7 +28,7 @@ class LatexOCRModel(nn.Module):
 
         # VGG-inspired block for feature extraction
         self.vgg = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=3, padding=1),
+            nn.Conv2d(1, 64, kernel_size=3, padding=1),     # Input channel is 1 for grayscale
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, kernel_size=3, padding=1),
@@ -156,7 +156,7 @@ class LatexOCRModel(nn.Module):
             image = F.pad(image, padding, "constant", 0)
         
         # Normalize pixel values if not already normalized
-        if channels == 3 and image.max() > 1:
+        if channels == 1 and image.max() > 1:
             image = image / 255.0
             if self.normalize is not None:
                 image = self.normalize(image)

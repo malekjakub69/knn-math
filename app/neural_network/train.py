@@ -27,7 +27,7 @@ def train_model(model, train_loader, val_loader, learning_rate=3e-4, epochs=100,
     ctc_criterion = nn.CTCLoss(blank=0, zero_infinity=True)
     ce_criterion = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.15)
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate, 
-                        weight_decay=0.01, betas=(0.9, 0.98))
+                        weight_decay=1e-4, betas=(0.9, 0.98))   # Weight decay changed from 0.01 to 1e-4
 
     # Initialize the scheduler and scaler for mixed precision training
     scheduler = optim.lr_scheduler.OneCycleLR(

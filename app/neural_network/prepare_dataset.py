@@ -5,6 +5,7 @@ from tqdm import tqdm
 import argparse
 from skimage import io
 import six
+from tqdm import tqdm
 from .inkml2img import inkml2img
 
 
@@ -13,7 +14,7 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     Připraví dataset pro neuronovou síť rozdělením na trénovací, validační a testovací sadu.
 
     Args:
-        input_dir: Adresář se vstupními daty a ground truth train_labels.txt
+        input_dir: Adresář se vstupními daty (./train_images/ a ./inkml/) a ground truth train_labels.txt
         output_dir: Adresář pro výstupní data
         train_ratio: Poměr trénovacích dat (0.8 = 80%)
         val_ratio: Poměr validačních dat (0.1 = 10%)
@@ -30,11 +31,9 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     os.makedirs(os.path.join(output_dir, "test_images"), exist_ok=True)
 
     input_images_dir = os.path.join(input_dir, "train_images")
-    inkml_dir = os.path.join(input_dir, "inkml")
 
     # Nacteni seznamu INKML souboru
-    # inkml_files = [f for f in os.listdir(input_images_dir) if f.lower().endswith(".inkml")]
-    inkml_files = [f for f in os.listdir(inkml_dir) if f.lower().endswith(".inkml")]
+    inkml_files = [f for f in os.listdir(input_images_dir) if f.lower().endswith(".inkml")]
 
     # Nacteni existujicich souboru z train_labels.txt
     train_labels_path = os.path.join(input_dir, "train_labels.txt")
@@ -43,13 +42,14 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     if os.path.exists(train_labels_path):
         with open(train_labels_path, "r", encoding="utf-8") as f:
             for line in f:
-                image_name = line.strip().split("\t")[0]  # Extract the image name
+                # image_name = line.strip().split("\t")[0]  # Extract the image name
+                image_name = line.strip().split(None, 1)[0] # Extract the image name
                 existing_entries.add(image_name)
 
     # Pokud existují INKML soubory, vygenerovat obrázky a pridat je do train_labels.txt
     if inkml_files:
         print("Načítání INKML souborů...")
-        for inkml_file in inkml_files:
+        for inkml_file in tqdm(inkml_files):
             image_name = os.path.splitext(inkml_file)[0] + ".png"
 
             # Pokud byl soubor vygenerován dříve, přeskočit
@@ -57,8 +57,7 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
                 # print(f"Soubor {image_name} již existuje v train_labels.txt, přeskočeno.")
                 continue
 
-            # inkml_path = os.path.join(input_images_dir, inkml_file)
-            inkml_path = os.path.join(inkml_dir, inkml_file)
+            inkml_path = os.path.join(input_images_dir, inkml_file)
             # Načtení obrázku z INKML
             image, formula = inkml2img(inkml_path, img_height=80, line_width=1, padding=0, color="black")
 
@@ -117,7 +116,7 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     with open(os.path.join(output_dir, "train_formulas.txt"), "w", encoding="utf-8") as f:
         for image_file in train_files:
             if image_file in labels:
-                f.write(f"{labels[image_file]}\n")
+                f.write(f"{image_file}\t{labels[image_file]}\n")
             else:
                 print(f"VAROVÁNÍ: chybí anotace pro {image_file}")
 
@@ -125,7 +124,7 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     with open(os.path.join(output_dir, "val_formulas.txt"), "w", encoding="utf-8") as f:
         for image_file in val_files:
             if image_file in labels:
-                f.write(f"{labels[image_file]}\n")
+                f.write(f"{image_file}\t{labels[image_file]}\n")
             else:
                 print(f"VAROVÁNÍ: chybí anotace pro {image_file}")
 
@@ -133,7 +132,7 @@ def prepare_dataset(input_dir, output_dir, train_ratio=0.8, val_ratio=0.1, test_
     with open(os.path.join(output_dir, "test_formulas.txt"), "w", encoding="utf-8") as f:
         for image_file in test_files:
             if image_file in labels:
-                f.write(f"{labels[image_file]}\n")
+                f.write(f"{image_file}\t{labels[image_file]}\n")
             else:
                 print(f"VAROVÁNÍ: chybí anotace pro {image_file}")
 

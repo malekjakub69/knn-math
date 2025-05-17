@@ -75,12 +75,32 @@ class LatexDataset(Dataset):
         self.images_path = os.path.join(data_dir, f"{split}_images")
         self.formulas_file = os.path.join(data_dir, f"{split}_formulas.txt")
 
-        # Načtení seznamu obrázků
-        self.image_files = sorted([f for f in os.listdir(self.images_path) if f.lower().endswith((".png", ".jpg", ".jpeg"))])
+        # # Načtení seznamu obrázků
+        # self.image_files = sorted([f for f in os.listdir(self.images_path) if f.lower().endswith((".png", ".jpg", ".jpeg"))])
+
+        # # Načtení LaTeX formulí
+        # with open(self.formulas_file, "r", encoding="utf-8") as f:
+        #     self.formulas = [line.strip() for line in f.readlines()]
+
+        image_files_colector = []
+        formulas_colector = []
 
         # Načtení LaTeX formulí
         with open(self.formulas_file, "r", encoding="utf-8") as f:
-            self.formulas = [line.strip() for line in f.readlines()]
+            for line in f.readlines():
+                img_name, formula = line.strip().split(None, 1) 
+                img_path = os.path.join(self.images_path, img_name)
+                if os.path.exists(img_path) and img_name.lower().endswith((".png", ".jpg", ".jpeg")):
+                    formulas_colector.append(formula)
+                    image_files_colector.append(img_name)
+
+        self.formulas = formulas_colector
+        self.image_files = image_files_colector
+
+
+
+
+
 
         # Kontrola, že počet obrázků odpovídá počtu formulí
         assert len(self.image_files) == len(self.formulas), f"Počet obrázků ({len(self.image_files)}) a formulí ({len(self.formulas)}) se neshoduje"

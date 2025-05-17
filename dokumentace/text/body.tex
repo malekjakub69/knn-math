@@ -4,33 +4,33 @@ Tento dokument popisuje problematiku a řešení rozpoznání matemtických rovn
 % Tento dokument popisuje strukturu a implementaci projektu KNN-Math, který se zaměřuje na rozpoznávání matematických vzorců pomocí algoritmu k-nejbližších sousedů (KNN). Systém je navržen pro rozpoznávání jak tištěných, tak ručně psaných matematických výrazů a jejich převod do formátu LaTeX.
 
 \section{Popis úlohy}
-Úkolem projektu je vytvoření a natrénování modelu pomocí strojového učení, který bude schopný rozpoznat obrázky matematických výrazů na vstupu a převést je do strojového zápisu. Formát vstupních obrázků jsme si zvolili jako obázky ručně psaných rovnic, které budou následně převedeny do formátu LaTeX.  
+Úkolem projektu je vytvoření a natrénování modelu pomocí strojového učení, který bude schopný rozpoznat obrázky matematických výrazů na vstupu a převést je do strojového zápisu. Formát vstupních obrázků jsme si zvolili jako obrázky ručně psaných rovnic, které budou následně převedeny do formátu LaTeX.  
 
 
 \section{Přehled existujících řešení}
 V celé historii problematiky rozpoznávání ručne psaných matematických rovnic se objevily tři odlišné přístupy~\ref{img:method_history}. Na počátku se jednalo o jednodušší více přímočaré metody označované jako sekvenční řešení~\cite{ukr_survey}.
 
 % ===== Method histoty img =====
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{img/method_history.png}
     \caption{Časový vývoj různých metod pro rozpoznávání matematických vzorců}
     \label{img:method_history}
 \end{figure}
 
-\textbf{Sekvenční řešení} použí princip dekompozice a tuto metodu lze rozložit do několika částí~\ref{img:seq_sol}. Modely pracující na tomto principu nejprve (1) rozpoznají jednotlivé symboly a následeně provedou (2) strukturní analýzu, kde jednotlivé symboly poskládají do celého výrazu. Rozpoznávání symbolů lze pak dále rozložit na segmentaci jednotlivých symbolů a jejich klasifikaci. 
+\textbf{Sekvenční řešení} použí princip dekompozice a tuto metodu lze rozložit do několika částí (obrázek~\ref{img:seq_sol}). Modely pracující na tomto principu nejprve (1) rozpoznají jednotlivé symboly a následeně provedou (2) strukturní analýzu, kde jednotlivé symboly poskládají do celého výrazu. Rozpoznávání symbolů lze pak dále rozložit na segmentaci jednotlivých symbolů a jejich klasifikaci. Tato metoda o několika krocích má ale nevýhodu v akumulaci chyb během výpočtu jeddnotlivých kroků.
 
 % ===== Seq. Sol. img =====
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{img/sequential_sol.png}
     \caption{Diagram postupu sekvenčního řešení}
     \label{img:seq_sol}
 \end{figure}
 
+\textbf{Integrovaná řešení}: generují množinu symbolických hypotéz a následně pomocí strukturní analýzy vyberou tu nejlepší na základě znalosti odpovídající gramatiky a sémantiky. Tento přístup je složitější a vyžaduje více výpočetních prostředků, ale může poskytnout lepší výsledky v případě složitějších vzorců.
 
-
-
+Zatímco předchozí dvě metody řešení problematiky rozpoznávání matamatických rovnic byly v posledních dekádách studovány důkladně, \textbf{end-to-end řešení} na principu \textbf{encoder--decoder} se začaly objevovat relativně nedávno. Tento přístup se snaží vyřešit problém rozpoznávání vzorců jako celek, bez rozdělení na jednotlivé části. Používá hluboké učení a neuronové sítě bez jakékoliv znalosti konkrétní domény pro tvorbu modelu -- \textbf{data-driven} přístup. Enkodér převede vstup na latentní reprezentaci a dekodér extrahuje skrytou reprezentaci za pomoci attention mechanismu a generuje výstupní sekvenci. 
 
 
 

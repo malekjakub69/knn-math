@@ -7,6 +7,17 @@ import numpy as np
 import random
 
 
+class GaussianNoise:
+    """Custom transform to add Gaussian noise to tensor images"""
+    def __init__(self, std=0.02):
+        self.std = std
+        
+    def __call__(self, tensor):
+        noise = torch.randn_like(tensor) * self.std
+        noisy_tensor = tensor + noise
+        return torch.clamp(noisy_tensor, 0, 1)  # Ensure values stay in [0,1]
+
+
 class LatexDataset(Dataset):
     """
     Dataset pro obrázky matematických výrazů a jejich LaTeX kód.
@@ -37,19 +48,26 @@ class LatexDataset(Dataset):
             norm_std = [0.229, 0.224, 0.225]
 
             # Základní transformace - použité pro všechny
-            base_transform = [transforms.Resize((224, 224)), transforms.ToTensor(), transforms.Normalize(mean=norm_mean, std=norm_std)]
+            base_transform = [
+                transforms.Resize((224, 224)), 
+                transforms.ToTensor(),
+                transforms.Normalize(mean=norm_mean, std=norm_std)
+            ]
 
             # Augmentace pouze pro trénink
             if self.augment:
-                self.transform = transforms.Compose(
-                    [
-                        transforms.RandomApply([transforms.ColorJitter(brightness=0.2, contrast=0.2)], p=0.3),
-                        transforms.RandomApply([transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 1.0))], p=0.2),
-                        transforms.RandomRotation(degrees=5),  # Mírná rotace
-                        transforms.RandomAffine(degrees=1, translate=(0.08, 0.08)),  # Mírný posun
-                        *base_transform,
-                    ]
-                )
+                color_jitter = transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2)
+                blur = transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 2.0))
+                
+                self.transform = transforms.Compose([
+                    transforms.RandomApply([color_jitter], p=0.4),
+                    transforms.RandomApply([blur], p=0.3),
+                    transforms.RandomRotation(degrees=10),
+                    transforms.RandomAffine(degrees=2, translate=(0.12, 0.12), scale=(0.95, 1.05)),
+                    *base_transform,
+                    transforms.RandomApply([GaussianNoise(0.02)], p=0.2),
+                    transforms.RandomErasing(p=0.2),
+                ])
             else:
                 self.transform = transforms.Compose(base_transform)
 
@@ -57,12 +75,32 @@ class LatexDataset(Dataset):
         self.images_path = os.path.join(data_dir, f"{split}_images")
         self.formulas_file = os.path.join(data_dir, f"{split}_formulas.txt")
 
-        # Načtení seznamu obrázků
-        self.image_files = sorted([f for f in os.listdir(self.images_path) if f.lower().endswith((".png", ".jpg", ".jpeg"))])
+        # # Načtení seznamu obrázků
+        # self.image_files = sorted([f for f in os.listdir(self.images_path) if f.lower().endswith((".png", ".jpg", ".jpeg"))])
+
+        # # Načtení LaTeX formulí
+        # with open(self.formulas_file, "r", encoding="utf-8") as f:
+        #     self.formulas = [line.strip() for line in f.readlines()]
+
+        image_files_colector = []
+        formulas_colector = []
 
         # Načtení LaTeX formulí
         with open(self.formulas_file, "r", encoding="utf-8") as f:
-            self.formulas = [line.strip() for line in f.readlines()]
+            for line in f.readlines():
+                img_name, formula = line.strip().split(None, 1) 
+                img_path = os.path.join(self.images_path, img_name)
+                if os.path.exists(img_path) and img_name.lower().endswith((".png", ".jpg", ".jpeg")):
+                    formulas_colector.append(formula)
+                    image_files_colector.append(img_name)
+
+        self.formulas = formulas_colector
+        self.image_files = image_files_colector
+
+
+
+
+
 
         # Kontrola, že počet obrázků odpovídá počtu formulí
         assert len(self.image_files) == len(self.formulas), f"Počet obrázků ({len(self.image_files)}) a formulí ({len(self.formulas)}) se neshoduje"

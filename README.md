@@ -26,3 +26,4 @@ python -m app.neural_network.train_nn --device cuda --data_dir dataset_path/ --e
 -   [ICDAR](https://ai.100tal.com/icdar) - International Conference on Document Analysis and Recognition
 -   [Research paper 1](https://link.springer.com/chapter/10.1007/978-3-031-41679-8_33)
 -   [Research paper 2](https://link.springer.com/chapter/10.1007/978-3-031-41679-8_34)
+  

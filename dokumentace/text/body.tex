@@ -1,14 +1,14 @@
 \section{Úvod}
-Tento dokument popisuje problematiku a řešení rozpoznání matemtických rovnic. Jedná se o velmi aktuální téma, které se v posledních letech stalo předmětem mnoha výzkumů a aplikací. Rozpoznávání matematických vzorců je důležité pro automatizaci různých úloh, jako je převod tištěných nebo ručně psaných vzorců do digitálního formátu, což usnadňuje jejich zpracování a analýzu.
+Tento dokument popisuje problematiku a řešení rozpoznání matematických rovnic. Jedná se o velmi aktuální téma, které se v posledních letech stalo předmětem mnoha výzkumů a aplikací. Rozpoznávání matematických vzorců je důležité pro automatizaci různých úloh, jako je převod tištěných nebo ručně psaných vzorců do digitálního formátu, což usnadňuje jejich zpracování a analýzu.
 
-% Tento dokument popisuje strukturu a implementaci projektu KNN-Math, který se zaměřuje na rozpoznávání matematických vzorců pomocí algoritmu k-nejbližších sousedů (KNN). Systém je navržen pro rozpoznávání jak tištěných, tak ručně psaných matematických výrazů a jejich převod do formátu LaTeX.
+Zdrojový kód je otevřeně dostupný na \href{https://github.com/malekjakub69/knn-math}{https://github.com/malekjakub69/knn-math}.
 
 \section{Popis úlohy}
-Úkolem projektu je vytvoření a natrénování modelu pomocí strojového učení, který bude schopný rozpoznat obrázky matematických výrazů na vstupu a převést je do strojového zápisu. Formát vstupních obrázků jsme si zvolili jako obrázky ručně psaných rovnic, které budou následně převedeny do formátu LaTeX -- \textbf{offline recognition}.
+Úkolem projektu je vytvoření a natrénování modelu pomocí strojového učení, který bude schopný rozpoznat obrázky matematických výrazů na vstupu a převést je do strojového zápisu. Formát vstupních obrázků jsme si zvolili jako obrázky ručně psaných rovnic, které budou následně převedeny do formátu \LaTeX -- \textbf{offline recognition}.
 
 
 \section{Přehled existujících řešení}
-V celé historii problematiky rozpoznávání ručne psaných matematických rovnic se objevily tři odlišné přístupy~\ref{img:method_history}. Na počátku se jednalo o jednodušší více přímočaré metody označované jako sekvenční řešení~\cite{ukr_survey}.
+V celé historii problematiky rozpoznávání ručně psaných matematických rovnic se objevily tři odlišné přístupy~\ref{img:method_history}. Na počátku se jednalo o jednodušší více přímočaré metody označované jako sekvenční řešení~\cite{ukr_survey}.
 
 % ===== Method histoty img =====
 \begin{figure}[H]
@@ -18,7 +18,8 @@ V celé historii problematiky rozpoznávání ručne psaných matematických rov
     \label{img:method_history}
 \end{figure}
 
-\textbf{Sekvenční řešení} použí princip dekompozice a tuto metodu lze rozložit do několika částí (obrázek~\ref{img:seq_sol}). Modely pracující na tomto principu nejprve (1) rozpoznají jednotlivé symboly a následeně provedou (2) strukturní analýzu, kde jednotlivé symboly poskládají do celého výrazu. Rozpoznávání symbolů lze pak dále rozložit na segmentaci jednotlivých symbolů a jejich klasifikaci. Tato metoda o několika krocích má ale nevýhodu v akumulaci chyb během výpočtu jeddnotlivých kroků.
+\subsection{Sekvenční metody}
+Používají princip dekompozice a tuto metodu lze rozložit do několika částí (obrázek~\ref{img:seq_sol}). Modely pracující na tomto principu nejprve (1) rozpoznají jednotlivé symboly a následně provedou (2) strukturní analýzu, kde jednotlivé symboly poskládají do celého výrazu. Rozpoznávání symbolů lze pak dále rozložit na segmentaci jednotlivých symbolů a jejich klasifikaci. Tato metoda o několika krocích má ale nevýhodu v akumulaci chyb během výpočtu jednotlivých kroků.
 
 % ===== Seq. Sol. img =====
 \begin{figure}[H]
@@ -28,21 +29,27 @@ V celé historii problematiky rozpoznávání ručne psaných matematických rov
     \label{img:seq_sol}
 \end{figure}
 
-\textbf{Integrovaná řešení}: generují množinu symbolických hypotéz a následně pomocí strukturní analýzy vyberou tu nejlepší na základě znalosti odpovídající gramatiky a sémantiky. Tento přístup je složitější a vyžaduje více výpočetních prostředků, ale může poskytnout lepší výsledky v případě složitějších vzorců.
+\subsection{Integrované metody}
+Generují množinu symbolických hypotéz a následně pomocí strukturní analýzy vyberou tu nejlepší na základě znalosti odpovídající gramatiky a sémantiky. Tento přístup je složitější a vyžaduje více výpočetních prostředků, ale může poskytnout lepší výsledky v případě složitějších vzorců.
 
-Zatímco předchozí dvě metody řešení problematiky rozpoznávání matamatických rovnic byly v posledních dekádách studovány důkladně, \textbf{end-to-end řešení} na principu \textbf{encoder--decoder} se začaly objevovat relativně nedávno. Tento přístup se snaží vyřešit problém rozpoznávání vzorců jako celek, bez rozdělení na jednotlivé části. Používá hluboké učení a neuronové sítě bez jakékoliv znalosti konkrétní domény pro tvorbu modelu -- \textbf{data-driven} přístup. Enkodér převede vstup na latentní reprezentaci a dekodér extrahuje skrytou reprezentaci za pomoci attention mechanismu a generuje výstupní sekvenci. 
+\subsection{End-to-end metody}
+Zatímco předchozí dvě metody řešení problematiky rozpoznávání matematických rovnic byly v posledních dekádách studovány důkladně, \textbf{end-to-end řešení} na principu \textbf{encoder--decoder} se začaly objevovat relativně nedávno. Tento přístup se snaží vyřešit problém rozpoznávání vzorců jako celek, bez rozdělení na jednotlivé části. Používá hluboké učení a neuronové sítě bez jakékoli znalosti konkrétní domény pro tvorbu modelu -- \textbf{data-driven} přístup. Enkodér převede vstup na latentní reprezentaci a dekodér extrahuje skrytou reprezentaci za pomoci attention mechanismu a generuje výstupní sekvenci. 
 
-Jeden z prvních návhů konktrétní architektury se skládal z VGG sítě, která sloužila jako enkodér \cite{ZHANG_1}. Model dále využíval GRU jako dekodér. Takto navržený systém disponuje přesností okolo 45~\% na datasetech CROHME (Competiton on Recognition of Handwritten Mathematical Expressions (HME)), které jsou standardem evaluace modelů pro rozpoznávání matematických vzorců. Použitá evaluační metrika je expression recognition rate/accuracy, která vyhodnocuje správnost modelu jak z pohledu jednotlivých symbolů, tak i celkové struktury. Jako správný se výstup považuje v případě, že celkový počet chyb v jednom výstupu není více než 3. 
+Jeden z prvních návrhů konkrétní architektury se skládal z \textbf{VGG} sítě, která sloužila jako enkodér \cite{ZHANG_1}. Model dále využíval \textbf{GRU} jako dekodér. Takto navržený systém disponuje přesností okolo 45~\% na datasetech \textbf{CROHME} (Competition on Recognition of Handwritten Mathematical Expressions (HME)), které jsou standardem evaluace modelů pro rozpoznávání matematických vzorců. 
 
-Vylepšení původního návrhu architektury dále zahrnovaly nahrazení VGG sítě a použité DenseNet (densely connected conv. network) jako enkodéru \cite{ZHANG_2}. Ve článku \cite{LeAnhDuc} představují end-to-end řešení: kaskáda CNN - feature extractor, BLSTM - encoder a LSTM s attention mechanismem jako dekodér.
+\begin{tcolorbox}[myhighlight]
+Evaluační metrika \textbf{expression recognition rate/accuracy} -- vyhodnocuje správnost modelu jak z pohledu jednotlivých symbolů, tak i celkové struktury. Jako správný se výstup považuje v případě, že celkový počet chyb v jednom výstupu není více než 3. 
+\end{tcolorbox}
+
+Vylepšení původního návrhu architektury dále zahrnovala nahrazení VGG sítě a použití DenseNet (densely connected conv. network) jako enkodéru \cite{ZHANG_2}. Ve článku \cite{LeAnhDuc} představují end-to-end řešení: kaskáda CNN - feature extractor, BLSTM - encoder a LSTM s attention mechanismem jako dekodér.
 
 V posledním ročníku soutěže CROHME 2023 se objevilo několik návrhů. Vítězný tým představil model skládající se z vrstev CNN a BLSTM pro enkodér a dekodér v podobě attention mechanismu (expression recognition rate 86.95~\%).
 
-Další účastnící se řešení používá DenseNet jako enkodér a 2 různé řešen dekodéru: bidirectional tree decoder a klasiký dekodér. S tímto přístupem vznikají 2 modely, jejichž spojením vzniká hybridní model (expression recognition rate 86.95~\%). 
+Další účastníci se řešení používá DenseNet jako enkodér a 2 různé řešení dekodéru: bidirectional tree decoder a klasický dekodér. S tímto přístupem vznikají 2 modely, jejichž spojením vzniká hybridní model (expression recognition rate 86.95~\%). 
 
-Poslední model představený v soutěži, který uvedeme v této kapitole je složen ze 2 částí: obrazový model -- CRNN architektura prénonvaná na CTC loss funkci, a jazykový model -- LSTM architektura trénovaná pro predikci dalšího LaTeX tokenu (expression recognition rate 75.55~\%).
+Poslední model představený v soutěži, který uvedeme v této kapitole, je složen ze 2 částí: obrazový model -- CRNN architektura trénovaná na CTC loss funkci, a jazykový model -- LSTM architektura trénovaná pro predikci dalšího \LaTeX~tokenu (expression recognition rate 75.55~\%).
 
-Týmy mají pro tvorbu řešení k dispozici online i offline datasety, které důmyslně používají spolu s augmentací a generování offline dat z online datasetu pro zlepšení výsledků.
+Týmy mají pro tvorbu řešení k dispozici online i offline datasety, které důmyslně používají spolu s augmentací a generováním offline dat z online datasetu pro zlepšení výsledků.
 
 
 \cite{CROHME_2023}
@@ -51,231 +58,176 @@ Týmy mají pro tvorbu řešení k dispozici online i offline datasety, které d
 
 \section{Popis vlastního řešení}
 
+Na základě provedené rešerše existujících řešení jsme sestavili vlastní NN model založený na \textbf{Vision~Transformer} (ViT) enkodér-dekodér architektuře (poprvé představena v roce 2019) spolu s VGG sítí na vstupu pro prvotní extrakci rysů z obrázku. 
+
+
+\subsection{Vstupní data}
+Použili jsme \href{https://ai.100tal.com/icdar}{oficiální dataset} soutěže ICDAR CROHME 2023 s celkem 30~000 obrázky ručně psaných matematických rovnic (HME) spolu s přiloženými \LaTeX~sekvencemi, které jsme přímo použili jako ground truth.
+
+Dále jsme zkusili trénovací sadu expandovat pomocí generování obrázků HME z offline dat, které jsou k dispozici v mnohem větším množství. K tomuto účelu jsme využili největší dostupný dataset HME -- \href{https://arxiv.org/html/2404.10690v1}{MathWriting}, který obsahuje 230~000 ručně psaných a 400~000 syntetických offline záznamů ve formátu InkML, který ke každému záznamu rovněž obsahoval \LaTeX~ground truth. Pomocí souřadnic jednotlivých tahů offline záznamů jsme byli schopni vykreslit obrazovou reprezentaci a takto celkovou trénovací sadu mnohonásobně rozšířit.
+
+\subsubsection{Augmentace}
+
+Pro zlepšení robustnosti modelu jsme do procesu trénování přidali řadu transformací vstupního obrázku. Konkrétně se aplikují mírné změny výšky a šířky obrázku, změna barev (color jitter), rozmazání dle Gaussova rozdělení, rotace, posuny a přidání náhodného šumu.
+
+
+\subsection{Model}
+
+Původní baseline řešení představené v rámci checkpointu a videa obsahovalo řadu problémů, které jsme se pokusili vyřešit konzultací a nalezením dalších dříve zmíněných existujících řešení. Aktuální verze modelu \LaTeX~OCR převádí vstupní obrázek na sekvenci tokenů reprezentující \LaTeX~kód s využitím hybridní architektury založené na transformerovém kodéru a dekodéru s přidanými konvolučními vrstvami VGG, patch embeddingem a pozičním kódováním.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.75\textwidth]{img/model.png}
+    \caption{Architektura modelu \LaTeX~OCR}
+    \label{img:seq_sol}
+\end{figure}
+
+\subsubsection{Komponenty arhitektury}
+
+\begin{itemize}
+    \item \textbf{Vstupní obrázek} - pro zachování správného rozměru se vstupní obrázek nejprve pomocí interpolace změní na pevnou výšku 80 pixelů, přičemž je zachován původní poměr stran, a následně se doplňuje padding tak, aby šířka byla dělitelná velikostí patche.
+    \item \textbf{VGG blok} - slouží jako první stupeň extrakce vizuálních příznaků ze vstupního obrázku. Inspirovaný architekturou VGG sítě, používá sekvenci konvolučních vrstev následovaných batch normalizací a ReLU aktivací. Tento blok redukuje prostorové rozměry na polovinu (tedy výšku 40 pixelů) pomocí MaxPoolingu a současně zvyšuje počet kanálů na 64, čímž vytváří bohatší reprezentaci vizuálních příznaků před jejich dalším zpracováním patch embedingem (obrázek~\ref{img:vgg_arch}). Zachování prostorových informací je klíčové pro správné rozpoznání matematických symbolů a jejich vzájemných vztahů.
+    \item \textbf{Patch Embedding} - klíčová součást architektury, která převádí obrazové příznaky na sekvenci vektorů (patches (oblasti) o velikosti 8x8 pixelů, které jsou transformovány pomocí konvolučních vrstev na vektory s dimenzí 128) pro zpracování transformerem. Tento proces efektivně převádí 2D obrazovou reprezentaci na sekvenci embedingů, kde každý embedding reprezentuje určitou oblast původního obrázku, což umožňuje transformeru zpracovávat obrazové informace jako sekvenci, podobně jako zpracovává textové tokeny.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/vgg_architecture.pdf}
+    \caption{Diagram architektury VGG bloku}
+    \label{img:vgg_arch}
+\end{figure}
+    
+    \item \textbf{Poziční kódování} - původní model popsaný v checkpointu obsahoval učící se poziční parametry inicializovaného vektorem s hodnotami 0. Tento přístup byl však neefektivní pro vstupy s různou šířkou. Nyní používáme \textbf{Sinusoidové poziční kódování} \cite{sinusoidal-encoding} pro zachycení prostorových vztahů jak v obrazových datech (2D), tak v sekvencích \LaTeX tokenů (1D). Toto kódování je klíčové pro transformer architekturu, protože umožňuje modelu rozlišovat pozice jednotlivých prvků bez ohledu na jejich vzdálenost. Pro obrazové příznaky se používá 2D varianta, která kombinuje výškovou a šířkovou složku pomocí funkcí sinus a cosinus s různými frekvencemi. Tento přístup vytváří unikátní poziční signál pro každou pozici v mřížce příznaků, přičemž relativní pozice jsou zachyceny pomocí lineárních kombinací těchto trigonometrických funkcí. Pro dekódování \LaTeX sekvence se používá standardní 1D poziční kódování, které následuje stejný princip, ale pouze v jedné dimenzi.
+    \item \textbf{Transformer encoder} - zpracovává sekvenci patch embedingů vytvořených z obrázku. V naší implementaci používáme \href{https://docs.pytorch.org/docs/stable/generated/torch.nn.TransformerEncoderLayer.html}{nn.TransformerEncoder z knihovy PyTorch} s několika vrstvami (\textit{num\textunderscore transformer\textunderscore layers=4}), kde každá vrstva obsahuje multi-head self-attention mechanismus (s \textit{nhead=8} hlavami) následovaný feed-forward sítí. Encoder transformuje prostorově uspořádané příznaky z patch embedingu na kontextově bohatou reprezentaci, kde každý vektor obsahuje informace o globálních vztazích v obraze. Tato reprezentace je klíčová pro následné dekódování LaTeX sekvence, protože zachycuje jak lokální detaily matematických symbolů, tak jejich vzájemné prostorové vztahy.
+    \item \textbf{Transformer decoder} - převádí zakódované vizuální příznaky na sekvenci LaTeX tokenů. V původní verzi popsané v checkpointu, jsme využívali \textbf{LSTM} s pozorností (attention mechanism) s vrstvou normalizace (LayerNorm). Toto řešení jsme nakonec opustili a jako vhodný dekodér pro transformer kodér jsme zvolili standardní \href{https://docs.pytorch.org/docs/stable/generated/torch.nn.TransformerDecoderLayer.html}{nn.TransformerDecoder} s maskovým self-attention mechanismem, který zajišťuje, že při generování každého tokenu může model vidět pouze předchozí tokeny. Dekodér kombinuje attention na zakódované vizuální příznaky (cross-attention) s maskovaným self-attention na již vygenerované tokeny. Toto umožňuje modelu generovat \LaTeX výstup token po tokenu, přičemž každý nový token je generován s ohledem na vizuální kontext i dosud vygenerovaný text.
+\end{itemize}
+
+Model nabízí dva přístupy ke generování výsledné \LaTeX sekvence. Základní \textbf{greedy decoding} vždy vybírá token s nejvyšší pravděpodobností, což je rychlé, ale může vést k suboptimálním výsledkům. Sofistikovanější \textbf{beam search} (výchozí s \textit{beam\textunderscore size=3}) udržuje několik nejpravděpodobnějších sekvencí současně, což poskytuje lepší výsledky za cenu vyšší výpočetní náročnosti.
+
+Každá sekvence začíná speciálním \textbf{<START>} tokenem (1) a končí \textbf{<END>} tokenem (2), čímž model ví, kdy začít a ukončit generování. Pro běžné použití je doporučen beam search, který poskytuje lepší kvalitu rozpoznávání matematických výrazů díky uvažování více možných cest při generování sekvence.
+
+\subsection{Proces trénování}
+
+Trénování začíná inicializací modelu na zvoleném zařízení (CPU/CUDA/MPS) a nastavením optimalizačních komponent. Model využívá \href{https://docs.pytorch.org/docs/stable/generated/torch.optim.AdamW.html}{AdamW} optimizér s váhovým rozpadem pro regularizaci a \href{https://docs.pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html}{OneCycleLR} scheduler pro adaptivní učení. Pro efektivní využití GPU paměti je implementován mixed precision training pomocí automatického přepínání mezi float16 a float32 přesností.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/training.png}
+    \caption{Trénovací smyčka modelu}
+    \label{img:seq_sol}
+\end{figure}
+
+\subsubsection{Kombinovaná loss funkce}
+Model popsaný v rámci checkpointu používal pouze \textbf{Cross Entropy} loss s label smoothingem (0.15), která optimalizuje přesnost na úrovni jednotlivých tokenů a pomáhá s generalizací. Aktuální model jsme se však pokusili rozšířit o využití sofistikované kombinace dvou loss funkcí, každá s váhou 0.5. \textbf{Connectionist Temporal Classification} (CTC) loss řeší problém zarovnání sekvencí mezi vstupním obrázkem a výstupním LaTeX kódem, umožňující modelu naučit se mapování bez explicitního zarovnání. Tato hybridní loss funkce umožňuje modelu současně se učit globální strukturu matematického výrazu i přesnou tokenizaci.
+
+\subsubsection{Optimalizační strategie}
+Trénink využívá gradient accumulation (2 kroky) pro simulaci větších batch size a stabilnější trénink. Learning rate je řízen pomocí OneCycleLR scheduleru, který implementuje warmup fázi (30\% epochy) následovanou cosinovou annealing strategií. Pro prevenci explodujících gradientů je použit gradient clipping s maximální normou 2.0. Mixed precision training s GradScalerem efektivně využívá GPU paměť a zrychluje trénink při zachování numerické stability.
+
+
+\subsubsection{Monitoring a checkpointing}
+
+Dataset HME obrázků jsme rozdělili na trénovací, validační a testovací sadu v poměru 8:1:1. Na konci každé trénovací epochy jsme použili validační sadu ke zjištění aktuální přesnosti modelu. V průběhu trénování používáme 2 metriky přesnosti.
+
+\begin{enumerate}
+    \item \textbf{Token-level accuracy} měří poměr správně predikovaných tokenů na výstupu vůči celkovému počtu tokenů na výstupu. Takto vypočítaná hodnota je sice dobrým přibližným ukazatelem přesnosti modelu, zejména v počátečních fázích trénování, o celkové správnosti výsledku ale příliš dobře nevypovídá, neboť nezahrnuje informaci o celkové struktuře.
+    \item \textbf{Sequence accuracy} udává podíl kompletně správně predikovaných sekvencí vůči celkovému počtu sekvencí v sadě -- tato metrika naopak model podhodnocuje, v pozdních fázích trénování se ale může více blížit univerzální metrice \textbf{Expression recognition rate}, která se používá pro porovnání HME recognition modelů.
+\end{enumerate}
+
+Proces trénování implementuje mechanismus \textit{early stopping} s trpělivostí 10 epoch pro předcházení přetrénování. Checkpointy jsou ukládány ve třech režimech: při dosažení nejlepší accuracy, při dosažení nejlepší loss a periodicky každých 5 epoch. Toto umožňuje flexibilní obnovu tréninku a výběr optimálního modelu podle různých kritérií.
+
+
 \subsection{Experimenty}
 
-\subsection{Výsledky \~~Evaluace (Kvantitativní vs. kvalitativní)}	
+Vyzkoušeli jsme řadu technik, jak výkon modelu zlepšit, včetně změn architektury, úpravy trénovacího procesu, přidání různých augmentací vstupních trénovacích obrázků. Také jsme rozšířili původní datovou sadu ze soutěže o velké množství obrázků převedených z digitálního formátu InkML. 
 
-\section{Závěr \~~Takeaway messages}
+\subsubsection{Změny v architektuře modelu}
+
+Původní LSTM architekturu s attention mechanismem jsme nahradili plně transformerovou architekturou. Transformery prokázaly výrazně lepší schopnost paralelizace a efektivnější zpracování dlouhých sekvencí. Zavedení mechanismu multi-head attention (8 hlav) umožnilo modelu paralelně zpracovávat různé aspekty vizuálních rysů rovnic a zlepšilo zachycení dlouhodobých závislostí.
+
+Zásadní změnou bylo nahrazení učitelných pozičních embeddingů sinusoidálním pozičním kódováním. Pro vstupní obraz jsme implementovali 2D sinusoidální pozicování (rozložené na vertikální a horizontální komponenty), zatímco pro dekodér bylo použito standardní 1D sinusoidální kódování. Tato změna vedla ke stabilnějšímu tréninku a lepší schopnosti generalizace.
+
+\subsubsection{Optimalizátor a Scheduler}
+\begin{itemize}
+    \item AdamW s parametry (lr=3e-4, weight\textunderscore decay=0.01, betas=(0.9, 0.98))
+    \item OneCycleLR scheduler s 30\% warmup fází
+    \item Gradient accumulation (2 kroky) pro stabilnější trénink
+    \item Mixed precision training pro efektivní využití GPU
+\end{itemize}
+
+\subsubsection{Implementace kombinované loss funkce}
+\begin{itemize}
+    \item CTC Loss (váha 0.5) pro sequence alignment
+    \item Cross Entropy Loss (váha 0.5) s label smoothing 0.15
+    \item Gradient clipping s max\textunderscore norm=2.0
+\end{itemize}
+
+\subsubsection{Hyperparametry a další varianty}
+
+\begin{itemize}
+    \item \textbf{Počet vrstev TransformerEncoderu}:
+    \begin{itemize}
+        \item \texttt{layers=2}: nižší kapacita, přesnost stagnovala pod 2\,\%.
+        \item \texttt{layers=6}: mírné zlepšení, ale delší trénink bez poklesu validační ztráty.
+        \item \texttt{layers=4}: nejlepší kompromis mezi výkonem a paměťovou náročností.
+    \end{itemize}
+    
+    \item \textbf{Dropout}:
+    \begin{itemize}
+        \item \texttt{dropout=0.0}: výrazné přeučení po cca 10 epochách.
+        \item \texttt{dropout=0.3}: stabilnější validační ztráta, ale pomalejší trénink.
+        \item \texttt{dropout=0.1}: vyvážené řešení s nejlepším poměrem stability a výkonu.
+    \end{itemize}
+\end{itemize}
+
+\vspace{1em}
+
+\subsubsection{Analýza výkonnosti}
+
+\begin{itemize}
+    \item Trénovací metriky:
+    \begin{itemize}
+        \item Počáteční loss: $> 5.5$
+        \item Konvergovaná loss: $\approx 0.8$
+        \item Trénovací přesnost: 98\%
+    \end{itemize}
+    
+    \item Validační metriky:
+    \begin{itemize}
+        \item Validační loss: $\approx 6.4284$ (bez zlepšení)
+        \item Validační přesnost: 3.6\%
+    \end{itemize}
+    
+    \item Testovací metriky:
+    \begin{itemize}
+        \item Test loss: 6.4398
+        \item Testovací přesnost: 3.66\%
+    \end{itemize}
+\end{itemize}
+
+
+
+\subsubsection{Identifikované problémy}
+
+Pozorujeme efekt overfittingu - model vykazuje klasické známky přetrénování, kdy má téměř perfektní výsledky při trénování a už se není schopen zlepšovat, ale validační a testovací metriky na neviděných datech se nezlepšují
+
+Možné příčiny:
+\begin{enumerate}
+    \item Příliš komplexní model pro danou velikost datasetu
+    \item Špatná datová sada obsahující malý počet realistických fotografií ručně napsaných rovnic ze soutěže a data konvertovaná z formátu InkML (digitální formát z tabletu)
+    \item Neoptimální hyperparametry, které je pro daný problém nutné jinak nastavit
+\end{enumerate}
+
+Tyto výsledky naznačují, že přestože model dokáže efektivně memorovat trénovací data, má významné problémy s generalizací.
+
+
 
 
 \newpage
 \section{Závěr}
-Tato dokumentace popisuje strukturu a implementaci projektu KNN-Math. Projekt je navržen modulárně, což umožňuje snadnou údržbu a rozšiřování. Implementovaný systém používá algoritmus k-nejbližších sousedů pro rozpoznávání matematických symbolů a převod do LaTeX formátu.
+Tato dokumentace popisuje návrh, implementaci a experimentální vyhodnocení systému KNN-Math pro převod ručně psaných matematických rovnic do formátu \LaTeX. Systém je postaven na moderní architektuře typu encoder–decoder využívající konvoluční síť (VGG blok) pro extrakci vizuálních rysů a transformerový model pro sekvenční generování LaTeX výrazů.
 
+V průběhu vývoje jsme otestovali řadu přístupů ke zlepšení výkonnosti modelu. Zásadní změnou byla náhrada LSTM dekodéru za plně transformerový dekodér a přechod na sinusoidální poziční kódování. Dále jsme zavedli kombinovanou ztrátovou funkci (CTC + Cross Entropy), pokročilé trénovací techniky (gradient accumulation, mixed precision training) a rozšířili datovou sadu o synteticky vygenerované vzorky z formátu InkML.
 
+Ačkoliv model dosahoval vysoké přesnosti na trénovacích datech ($\approx 98\,\%$),  experimenty potvrdily výskyt přeučení -- validační a testovací přesnost se stabilně pohybovala pod 4\%. To naznačuje omezenou schopnost modelu generalizovat na nové vstupy, pravděpodobně kvůli datové nevyváženosti a převažujícímu podílu syntetických vzorků.
 
-
-
-\section{Kuba CHATGPT}
-Tak víc než toto nemám :/ 
-
-Jistě, zde je shrnutí průběhu experimentů a výsledků:
-
----
-
-První pokusy (malý batch, limit dat, základní augmentace),
-,
-Batch size: 16,
-Epochs: 5,
-Limit: 1000 vzorků,
-Výsledek:
-Train accuracy: až 1.0 (100\%),
-Train loss: 0.4592,
-Val accuracy: 0.0355 (3.55\%),
-Val loss: 5.1749,
-,
-Závěr: Model se naučil trénovací data nazpaměť, ale na validaci selhával (overfitting).,
-
----
-
-Zvětšení batch, více dat, zvýšený dropout, regularizace,
-,
-Batch size: 32–128,
-Dropout: 0.7 → 0.5,
-Weight decay: 0.01–0.02,
-Label smoothing: 0.1–0.3,
-Learning rate: 1e-4 → 1e-5 (příliš nízký nefungoval),
-Výsledek:
-Train accuracy: 0.3141 (31.41\%) po 4 epochách (batch 128),
-Val accuracy: 0.0178 (1.78\%),
-Train loss: 1.1588,
-Val loss: 7.5405,
-,
-Závěr: Overfitting se snížil, ale validace stále velmi slabá.,
-
----
-
-Oprava resize a paddingu, fixní výška 80, šířka 256,
-,
-Vstupní obrázky: [3, 80, 256],
-Batch size: 128,
-Epochs: 5 (test), plánováno 67–100 (celonoční běh),
-Výsledek:
-Epoch 1:
-Train loss: 1.0333,
-Train accuracy: 0.3446,
-Val loss: 6.2991,
-Val accuracy: 0.0000,
-,
-Epoch 2:
-Train loss: 0.8438,
-Train accuracy: 0.4296,
-Val loss: 6.7513,
-Val accuracy: 0.0178,
-,
-,
-Závěr: Model se učí, trénovací přesnost roste, validace je stále velmi nízká, ale už není nulová.,
-
-Technické úpravy
-Opraven resize s poměrem stran,
-Padding na fixní šířku,
-Opraveno stackování batchů,
-Opraven import a použití F.pad
-
-
-
-
-
-\begin{comment}
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%%%% Stará verze %%%%%%%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Struktura projektu}
-
-Projekt je organizován do modulárního systému, který usnadňuje údržbu a rozšiřitelnost. Hlavní adresářová struktura je následující:
-
-
-\section{Popis modulů}
-
-\subsection{Modul main.py}
-
-Tento modul slouží jako hlavní vstupní bod aplikace a poskytuje rozhraní příkazové řádky pro různé operace:
-\begin{itemize}
-    \item Trénování modelu pomocí trénovacích dat
-    \item Testování modelu na testovacích datech
-    \item Rozpoznávání matematických výrazů v jednotlivých obrázcích
-\end{itemize}
-
-\subsection{Modul preprocessing}
-
-Tento modul se stará o přípravu vstupních obrázků pro rozpoznávání:
-
-\begin{itemize}
-    \item \textbf{segmentation.py} - Obsahuje funkce pro segmentaci matematických symbolů z celého obrázku, převod obrázků do stupňů šedi, prahování pro oddělení symbolů od pozadí a normalizaci velikosti obrázků na standardní rozměr.
-\end{itemize}
-
-\subsection{Modul recognition}
-
-Tento modul implementuje algoritmus rozpoznávání symbolů:
-
-\begin{itemize}
-    \item \textbf{knn\_classifier.py} - Implementuje KNN klasifikátor pro rozpoznávání jednotlivých symbolů. Zahrnuje funkce pro trénování modelu, predikci symbolů, ukládání a načítání natrénovaného modelu.
-\end{itemize}
-
-\subsection{Modul parsing}
-
-Tento modul převádí rozpoznané symboly do LaTeX formátu:
-
-\begin{itemize}
-    \item \textbf{latex\_converter.py} - Obsahuje mapování mezi rozpoznanými symboly a jejich LaTeX reprezentací, a funkci pro sestavení výsledného LaTeX kódu z posloupnosti symbolů.
-\end{itemize}
-
-\subsection{Modul utils}
-
-Tento modul poskytuje pomocné funkce:
-
-\begin{itemize}
-    \item \textbf{data\_loader.py} - Funkce pro načítání obrázků a popisků z datasetu.
-    \item \textbf{evaluation.py} - Funkce pro vyhodnocení přesnosti a výkonnosti modelu.
-\end{itemize}
-
-\subsection{Modul config.py}
-
-Konfigurační soubor obsahující globální parametry:
-
-\begin{itemize}
-    \item Cesty k adresářům (dataset, modely)
-    \item Parametry KNN klasifikátoru (počet sousedů, váhy)
-    \item Parametry pro předzpracování obrázků (velikost po normalizaci)
-\end{itemize}
-
-\section{Algoritmus rozpoznávání}
-
-Algoritmus rozpoznávání matematických výrazů v aplikaci probíhá v následujících krocích:
-
-\begin{enumerate}
-    \item \textbf{Načtení vstupního obrázku} - Obrázek je načten a převeden do stupňů šedi.
-    
-    \item \textbf{Segmentace symbolů} - Obrázek je prahován pro oddělení symbolů od pozadí. Následně jsou nalezeny kontury jednotlivých symbolů a extrahovány jako samostatné obrázky.
-    
-    \item \textbf{Předzpracování symbolů} - Každý extrahovaný symbol je normalizován na standardní velikost a provedeny další úpravy pro zvýšení přesnosti rozpoznávání.
-    
-    \item \textbf{Klasifikace symbolů} - KNN klasifikátor predikuje identitu každého symbolu na základě natrénovaného modelu.
-    
-    \item \textbf{Konverze do LaTeXu} - Posloupnost rozpoznaných symbolů je převedena do LaTeX formátu, který zachovává matematickou strukturu výrazu.
-\end{enumerate}
-
-\section{KNN klasifikátor}
-
-Pro rozpoznávání jednotlivých symbolů je použit algoritmus k-nejbližších sousedů (KNN). Princip tohoto algoritmu je následující:
-
-\begin{itemize}
-    \item Každý obrázek je reprezentován jako vektor příznaků (v našem případě jako vektor hodnot pixelů).
-    \item Pro klasifikaci nového symbolu je vypočtena vzdálenost mezi jeho vektorem příznaků a vektory všech trénovacích vzorků.
-    \item Je vybráno $k$ trénovacích vzorků s nejmenší vzdáleností.
-    \item Nový symbol je klasifikován do třídy, která se nejčastěji vyskytuje mezi těmito $k$ nejbližšími sousedy.
-\end{itemize}
-
-V implementaci používáme weighted KNN, kde vzdálenější sousedé mají menší vliv na konečnou klasifikaci.
-
-\section{Dataset a trénování}
-
-Pro trénování a testování modelu je použit dataset matematických symbolů. Dataset obsahuje tisíce obrázků v adresáři \texttt{dataset} a soubor \texttt{train\_labels.txt}, který obsahuje mapování mezi názvy souborů a odpovídajícími symboly.
-
-Proces trénování zahrnuje:
-\begin{enumerate}
-    \item Načtení obrázků a jejich štítků
-    \item Předzpracování obrázků (normalizace velikosti, převod do stupňů šedi, atd.)
-    \item Extrakce příznaků (v našem případě příznaky jsou přímo hodnoty pixelů)
-    \item Trénování KNN klasifikátoru
-    \item Uložení natrénovaného modelu pro pozdější použití
-\end{enumerate}
-
-\section{Použití aplikace}
-
-Aplikaci lze použít několika způsoby:
-
-\subsection{Trénování modelu}
-
-\begin{lstlisting}[language=bash]
-python -m app.main --train
-\end{lstlisting}
-
-\subsection{Testování modelu}
-
-\begin{lstlisting}[language=bash]
-python -m app.main --test
-\end{lstlisting}
-
-\subsection{Rozpoznávání matematického výrazu v obrázku}
-
-\begin{lstlisting}[language=bash]
-python -m app.main --recognize cesta/k/obrazku.png --output vystup.tex
-\end{lstlisting}
-
-\section{Možná rozšíření}
-
-Navržená struktura projektu umožňuje snadné rozšíření o další funkce:
-
-\begin{itemize}
-    \item \textbf{Lepší algoritmy segmentace} - Implementace pokročilejších metod pro segmentaci složitějších matematických struktur (zlomky, mocniny, integrály).
-    
-    \item \textbf{Pokročilejší klasifikátory} - Nahrazení KNN klasifikátoru konvolučními neuronovými sítěmi nebo jinými algoritmy strojového učení.
-    
-    \item \textbf{Rozpoznávání struktury} - Implementace algoritmů pro rozpoznávání struktury matematických výrazů, nejen jednotlivých symbolů.
-    
-    \item \textbf{Webové rozhraní} - Vytvoření webového rozhraní pro snadné použití aplikace.
-\end{itemize}
-\end{comment}
+Projekt KNN-Math je modulární a otevřený dalšímu rozšiřování. Do budoucna by bylo vhodné zaměřit se na zlepšení kvality a rozmanitosti trénovacích dat, použití větších a realističtějších datasetů, nebo experimentování s jazykovými modely pro zpřesnění dekódované sekvence.
+~~

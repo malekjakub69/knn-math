@@ -35,6 +35,18 @@
 \DeclareFieldFormat{labelnumberwidth}{\mkbibbrackets{#1}}
 \usepackage{csquotes}
 
+\usepackage[most]{tcolorbox}
+\tcbset{
+  myhighlight/.style={
+    colback=gray!10,      % background color
+    colframe=gray!85!gray, % border color
+    boxrule=0.8pt,          % border thickness
+    arc=4pt,                % rounded corners
+    left=6pt, right=6pt, top=6pt, bottom=6pt, % padding
+    fonttitle=\bfseries
+    % title=Important
+  }
+}
 
 \geometry{a4paper, margin=2.5cm}
 

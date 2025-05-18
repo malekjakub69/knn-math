@@ -4,7 +4,7 @@ Tento dokument popisuje problematiku a řešení rozpoznání matemtických rovn
 % Tento dokument popisuje strukturu a implementaci projektu KNN-Math, který se zaměřuje na rozpoznávání matematických vzorců pomocí algoritmu k-nejbližších sousedů (KNN). Systém je navržen pro rozpoznávání jak tištěných, tak ručně psaných matematických výrazů a jejich převod do formátu LaTeX.
 
 \section{Popis úlohy}
-Úkolem projektu je vytvoření a natrénování modelu pomocí strojového učení, který bude schopný rozpoznat obrázky matematických výrazů na vstupu a převést je do strojového zápisu. Formát vstupních obrázků jsme si zvolili jako obrázky ručně psaných rovnic, které budou následně převedeny do formátu LaTeX.  
+Úkolem projektu je vytvoření a natrénování modelu pomocí strojového učení, který bude schopný rozpoznat obrázky matematických výrazů na vstupu a převést je do strojového zápisu. Formát vstupních obrázků jsme si zvolili jako obrázky ručně psaných rovnic, které budou následně převedeny do formátu LaTeX -- \textbf{offline recognition}.
 
 
 \section{Přehled existujících řešení}
@@ -31,6 +31,20 @@ V celé historii problematiky rozpoznávání ručne psaných matematických rov
 \textbf{Integrovaná řešení}: generují množinu symbolických hypotéz a následně pomocí strukturní analýzy vyberou tu nejlepší na základě znalosti odpovídající gramatiky a sémantiky. Tento přístup je složitější a vyžaduje více výpočetních prostředků, ale může poskytnout lepší výsledky v případě složitějších vzorců.
 
 Zatímco předchozí dvě metody řešení problematiky rozpoznávání matamatických rovnic byly v posledních dekádách studovány důkladně, \textbf{end-to-end řešení} na principu \textbf{encoder--decoder} se začaly objevovat relativně nedávno. Tento přístup se snaží vyřešit problém rozpoznávání vzorců jako celek, bez rozdělení na jednotlivé části. Používá hluboké učení a neuronové sítě bez jakékoliv znalosti konkrétní domény pro tvorbu modelu -- \textbf{data-driven} přístup. Enkodér převede vstup na latentní reprezentaci a dekodér extrahuje skrytou reprezentaci za pomoci attention mechanismu a generuje výstupní sekvenci. 
+
+Jeden z prvních návhů konktrétní architektury se skládal z VGG sítě, která sloužila jako enkodér \cite{ZHANG_1}. Model dále využíval GRU jako dekodér. Takto navržený systém disponuje přesností okolo 45~\% na datasetech CROHME (Competiton on Recognition of Handwritten Mathematical Expressions (HME)), které jsou standardem evaluace modelů pro rozpoznávání matematických vzorců. Použitá evaluační metrika je expression recognition rate/accuracy, která vyhodnocuje správnost modelu jak z pohledu jednotlivých symbolů, tak i celkové struktury. Jako správný se výstup považuje v případě, že celkový počet chyb v jednom výstupu není více než 3. 
+
+Vylepšení původního návrhu architektury dále zahrnovaly nahrazení VGG sítě a použité DenseNet (densely connected conv. network) jako enkodéru \cite{ZHANG_2}. Ve článku \cite{LeAnhDuc} představují end-to-end řešení: kaskáda CNN - feature extractor, BLSTM - encoder a LSTM s attention mechanismem jako dekodér.
+
+V posledním ročníku soutěže CROHME 2023 se objevilo několik návrhů. Vítězný tým představil model skládající se z vrstev CNN a BLSTM pro enkodér a dekodér v podobě attention mechanismu (expression recognition rate 86.95~\%).
+
+Další účastnící se řešení používá DenseNet jako enkodér a 2 různé řešen dekodéru: bidirectional tree decoder a klasiký dekodér. S tímto přístupem vznikají 2 modely, jejichž spojením vzniká hybridní model (expression recognition rate 86.95~\%). 
+
+Poslední model představený v soutěži, který uvedeme v této kapitole je složen ze 2 částí: obrazový model -- CRNN architektura prénonvaná na CTC loss funkci, a jazykový model -- LSTM architektura trénovaná pro predikci dalšího LaTeX tokenu (expression recognition rate 75.55~\%).
+
+Týmy mají pro tvorbu řešení k dispozici online i offline datasety, které důmyslně používají spolu s augmentací a generování offline dat z online datasetu pro zlepšení výsledků.
+
+\cite{CROHME_2023}
 
 
 

@@ -1,21 +1,24 @@
-# KNN-Math: Rozpoznávání matematických vzorců
+# KNN-Math
 
-## Popis projektu
+Tento projekt slouží k rozpoznávání matematických výrazů z obrázků a jejich převodu do LaTeX zápisu. Pro strojové učení využíváme knihovnu **PyTorch**.
 
-Cílem tohoto projektu je vytvořit systém pro převod naskenovaných matematických rovnic do strojového zápisu (např. LaTeX). Systém bude schopen pracovat jak s tištěnými, tak s ručně psanými matematickými výrazy.
+## Dokumentace
 
-### Hlavní cíle:
+Podrobná dokumentace je dostupná ve složce `dokumentace`. Je psána v LaTeXu a zdrojové `.tex` soubory jsou k dispozici.
 
--   Vývoj algoritmu pro detekci a segmentaci matematických symbolů v naskenovaných dokumentech
--   Implementace metod strojového učení pro rozpoznávání jednotlivých matematických symbolů
--   Vytvoření parseru pro převod rozpoznaných symbolů do LaTeX formátu
--   Testování a vyhodnocení přesnosti systému
+## Příprava datasetu
 
-### Možná rozšíření:
+Ve složce `app/neural_network` se nachází hlavní soubory, které definují přípravu datasetu, HME recognition model a trénovací skript. Přípravu datasestu lze sputit příkazem:
 
--   Příprava testovací sady z českých matematických knih a časopisů
--   Optimalizace pro rozpoznávání specifických českých matematických notací
--   Webové rozhraní pro snadné použití systému
+```bash
+python -m app.neural_network.prepare_dataset --input .\dataset\train_set\ --output dataset_path/
+```
+
+Trénování lze spustit pomocí:
+
+```bash
+python -m app.neural_network.train_nn --device cuda --data_dir dataset_path/ --epochs 30
+```
 
 ## Relevantní zdroje a soutěže
 
@@ -23,19 +26,3 @@ Cílem tohoto projektu je vytvořit systém pro převod naskenovaných matematic
 -   [ICDAR](https://ai.100tal.com/icdar) - International Conference on Document Analysis and Recognition
 -   [Research paper 1](https://link.springer.com/chapter/10.1007/978-3-031-41679-8_33)
 -   [Research paper 2](https://link.springer.com/chapter/10.1007/978-3-031-41679-8_34)
-
-## Instalace
-
-TBD
-
-## Použití
-
-TBD
-
-## Přispívání
-
-TBD
-
-## Licence
-
-TBD
